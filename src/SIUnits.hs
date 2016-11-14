@@ -21,6 +21,8 @@ data Unit where
     (:*:) :: Unit -> Unit -> Unit
     (:/:) :: Unit -> Unit -> Unit
 
+infixl 7 :*:, :/:
+
 data Gather where
     GU :: Unit -> Gather -> Gather
     GD :: Unit -> Gather -> Gather
