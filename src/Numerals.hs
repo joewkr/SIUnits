@@ -12,6 +12,43 @@ data Exp where
     PS :: Exp -> Exp
     (:%:) :: Exp -> Exp -> Exp
 
+data Peano where
+    PZ' :: Peano
+    PS' :: Peano -> Peano
+
+type P1' = PS' PZ'
+type P2' = PS' P1'
+type P3' = PS' P2'
+
+type P4' = PS' P3'
+type P5' = PS' P4'
+type P6' = PS' P5'
+type P7' = PS' P6'
+type P8' = PS' P7'
+type P9' = PS' P8'
+
+type family (~+~) (x :: Peano) (y :: Peano) :: Peano where
+    (~+~) x PZ' = x
+    (~+~) x (PS' y) = PS' (x ~+~ y)
+
+type family (~-~) (x :: Peano) (y :: Peano) :: Peano where
+    (~-~) x PZ' = x
+    (~-~) (PS' x) (PS' y) = x ~-~ y
+
+type family (~*~) (x :: Peano) (y :: Peano) :: Peano where
+    (~*~) x PZ' = PZ'
+    (~*~) x (PS' y) = x ~+~ (x ~*~ y)
+
+type family ToTernary (a :: Peano) :: Ternary where
+    ToTernary PZ' = TBot
+    ToTernary (PS' rest) = T1 TBot + ToTernary rest
+
+type family FromTernary (a :: Ternary) :: Peano where
+    FromTernary TBot = PZ'
+    FromTernary (TZ rest) = P3' ~*~ FromTernary rest
+    FromTernary (T1 rest) = (P3' ~*~ FromTernary rest) ~+~ P1'
+    FromTernary (TJ rest) = (P3' ~*~ FromTernary rest) ~-~ P1'
+
 data Ternary where
     TBot :: Ternary
     TZ :: Ternary -> Ternary
