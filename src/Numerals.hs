@@ -7,10 +7,35 @@
 {-# LANGUAGE UndecidableInstances #-}
 module Numerals where
 
+type P1 = PS PZ
+type P2 = PS P1
+type P3 = PS P2
+type P4 = PS P3
+type P5 = PS P4
+type P6 = PS P5
+type P7 = PS P6
+type P8 = PS P7
+type P9 = PS P8
+
 data Exp where
     PZ :: Exp
     PS :: Exp -> Exp
     (:%:) :: Exp -> Exp -> Exp
+
+type family ComputeIrreducible (a :: Exp) :: Exp where
+    ComputeIrreducible PZ = PZ
+    ComputeIrreducible (x :%: y) = (Reduce x y) :%: (Reduce y x)
+    ComputeIrreducible x = x
+
+type Reduce (x :: Exp) (y :: Exp) = FromPeano (FromTernary (FI (ToTernary (ToPeano x)) (ToTernary (ToPeano y))))
+
+type family ToPeano (a :: Exp) :: Peano where
+    ToPeano PZ = PZ'
+    ToPeano (PS rest) = PS' (ToPeano rest)
+
+type family FromPeano (a :: Peano) :: Exp where
+    FromPeano PZ' = PZ
+    FromPeano (PS' rest) = PS (FromPeano rest)
 
 data Peano where
     PZ' :: Peano
