@@ -5,7 +5,8 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
-module Numerals where
+module Numerals(Exp(..), ComputeIrreducible,
+    P1, P2, P3, P4, P5, P6, P7, P8, P9) where
 
 type P1 = PS PZ
 type P2 = PS P1

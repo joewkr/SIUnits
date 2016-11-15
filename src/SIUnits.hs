@@ -9,6 +9,8 @@
 {-# LANGUAGE ConstraintKinds #-}
 module SIUnits(Unit(..), SI(..)) where
 
+import Numerals
+
 data Unit where
     Kg :: Unit -- kilogram
     M :: Unit -- metre
