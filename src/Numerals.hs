@@ -56,9 +56,14 @@ type family (.>.) (x :: Exp) (y :: Exp) :: Boolean where
     (.>.) (x1 :%: x2) y = x1 .>. (x2 .*. y)
     (.>.) (PS x) (PS y) = x .>. y
 
+type family CheckCornerCase (a :: Exp) :: Exp where
+    CheckCornerCase (PZ :%: any) = PZ
+    CheckCornerCase (P1 :%: P1) = P1
+    CheckCornerCase x = x
+
 type family ComputeIrreducible (a :: Exp) :: Exp where
     ComputeIrreducible PZ = PZ
-    ComputeIrreducible (x :%: y) = (Reduce x y) :%: (Reduce y x)
+    ComputeIrreducible (x :%: y) = CheckCornerCase ((Reduce x y) :%: (Reduce y x))
     ComputeIrreducible x = x
 
 type Reduce (x :: Exp) (y :: Exp) = FromPeano (FromTernary (FI (ToTernary (ToPeano x)) (ToTernary (ToPeano y))))
