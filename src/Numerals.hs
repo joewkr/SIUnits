@@ -5,8 +5,13 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
-module Numerals(Exp(..), ComputeIrreducible,
-    P1, P2, P3, P4, P5, P6, P7, P8, P9) where
+module Numerals(Exp(..), Boolean(..), ComputeIrreducible,
+    P1, P2, P3, P4, P5, P6, P7, P8, P9, type (.+.), type(.*.),
+    type(.-.), type(.>.)) where
+
+data Boolean where
+    BT :: Boolean
+    BF :: Boolean
 
 type P1 = PS PZ
 type P2 = PS P1
@@ -22,6 +27,34 @@ data Exp where
     PZ :: Exp
     PS :: Exp -> Exp
     (:%:) :: Exp -> Exp -> Exp
+
+type family (.+.) (x :: Exp) (y :: Exp) :: Exp where
+    (.+.) x PZ = x
+    (.+.) (x1 :%: x2) (y1 :%: y2) = ComputeIrreducible (((x1 .*. y2) .+. (x2 .*. y1))  :%: (x2 .*. y2))
+    (.+.) x (y1 :%: y2) = (y1 :%: y2) .+. x
+    (.+.) (x1 :%: x2) y = ComputeIrreducible ((x1 .+. (x2 .*. y))  :%: x2)
+    (.+.) x (PS y) = PS (x .+. y)
+
+type family (.-.) (x :: Exp) (y :: Exp) :: Exp where
+    (.-.) x PZ = x
+    (.-.) (x1 :%: x2) (y1 :%: y2) = ComputeIrreducible (((x1 .*. y2) .-. (x2 .*. y1))  :%: (x2 .*. y2))
+    (.-.) (x1 :%: x2) y = ComputeIrreducible ((x1 .-. (x2 .*. y))  :%: x2)
+    (.-.) (PS x) (PS y) = x .-. y
+
+type family (.*.) (x :: Exp) (y :: Exp) :: Exp where
+    (.*.) x PZ = PZ
+    (.*.) (x1 :%: x2) (y1 :%: y2) = ComputeIrreducible ((x1 .*. y1) :%: (x2 .*. y2))
+    (.*.) x (y1 :%: y2) = (y1 :%: y2) .*. x
+    (.*.) (x1 :%: x2) y = ComputeIrreducible ((x1 .*. y) :%: x2)
+    (.*.) x (PS y) = x .+. (x .*. y)
+
+type family (.>.) (x :: Exp) (y :: Exp) :: Boolean where
+    (.>.) x PZ = BT
+    (.>.) PZ y = BF
+    (.>.) (x1 :%: x2) (y1 :%: y2) = (x1 .*. y2) .>. (x2 .*. y1)
+    (.>.) x (y1 :%: y2) = (x .*. y2) .>. y1
+    (.>.) (x1 :%: x2) y = x1 .>. (x2 .*. y)
+    (.>.) (PS x) (PS y) = x .>. y
 
 type family ComputeIrreducible (a :: Exp) :: Exp where
     ComputeIrreducible PZ = PZ
