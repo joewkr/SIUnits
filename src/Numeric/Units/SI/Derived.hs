@@ -1,9 +1,9 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE TypeOperators #-}
-module Derived where
+module Numeric.Units.SI.Derived where
 
-import Numerals
-import SIUnits
+import Numeric.Units.SI.Numerals
+import Numeric.Units.SI.Base
 
 type Herz = I :/: S
 

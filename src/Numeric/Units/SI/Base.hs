@@ -7,9 +7,9 @@
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE ConstraintKinds #-}
-module SIUnits(Unit(..), SI(..)) where
+module Numeric.Units.SI.Base(Unit(..), SI(..)) where
 
-import Numerals
+import Numeric.Units.SI.Numerals
 
 data Unit where
     Kg :: Unit -- kilogram
