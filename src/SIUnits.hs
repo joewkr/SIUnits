@@ -143,13 +143,3 @@ instance Num b => Num (SI (a :: Unit) b) where
 mu :: Num b => SI a1 b -> SI a2 b -> SI (Mult a1 a2) b
 mu (SI l) (SI r) = SI $ l * r
 
-su :: (Num b, Div a1 a2 ~ I) => SI a1 b -> SI a2 b -> SI a1 b
-su (SI l) (SI r) = SI $ l + r
-
-a :: SI (M :*: Kg) Int
-a = SI 4
-
-b :: SI (Kg :*: M) Int
-b = SI 8
-
-c = a `mu` b
