@@ -5,8 +5,6 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE InstanceSigs #-}
-{-# LANGUAGE ConstraintKinds #-}
 module Numeric.Units.SI.Base(Unit(..), SI(..)) where
 
 import Numeric.Units.SI.Numerals
@@ -134,13 +132,3 @@ data SI (a :: Unit) b where
     SI :: !b -> SI a b
 
 deriving instance Show b => Show (SI a b)
-
-instance Num b => Num (SI (a :: Unit) b) where
-    (+) (SI l) (SI r) = SI $ l + r
-
---mu :: Num b => SI (a1 :: Unit) b -> SI (a2 :: Unit) b -> SI (Mult a1 a2) b
-mu :: Num b => SI a1 b -> SI a2 b -> SI (Mult a1 a2) b
-mu (SI l) (SI r) = SI $ l * r
-
-su :: (Num b, NormalForm a1 ~ NormalForm a2) => SI a1 b -> SI a2 b -> SI a1 b
-su (SI l) (SI r) = SI $ l + r
