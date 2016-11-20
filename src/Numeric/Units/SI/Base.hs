@@ -5,7 +5,7 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
-module Numeric.Units.SI.Base(Unit(..), SI(..)) where
+module Numeric.Units.SI.Base(Unit(..), SI(..), Mult, NormalForm, Div) where
 
 import Numeric.Units.SI.Numerals
 
