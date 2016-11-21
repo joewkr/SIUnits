@@ -1,0 +1,37 @@
+name:                SIUnits
+version:             0.1.0.0
+synopsis:            A lightweight library to handle units of measure on type-level
+description:
+license:             BSD3
+license-file:        LICENSE
+author:              Yurii Batrak
+maintainer:
+-- copyright:
+category:            Math
+build-type:          Simple
+--extra-source-files:  ChangeLog.md
+cabal-version:       >=1.10
+
+library
+  exposed-modules:     Numeric.Units.SI
+                     , Numeric.Units.SI.Base
+                     , Numeric.Units.SI.Numerals
+                     , Numeric.Units.SI.Derived
+  -- other-modules:
+  ghc-options:         -Wall -Wno-redundant-constraints -O2
+  other-extensions:    DataKinds
+                     , KindSignatures
+                     , NoImplicitPrelude
+                     , TypeFamilies
+                     , GADTs
+                     , MultiParamTypeClasses
+                     , StandaloneDeriving
+                     , TypeOperators
+                     , UndecidableInstances
+
+  build-depends:       base >=4.9 && <4.10
+
+  hs-source-dirs:      src
+
+  default-language:    Haskell2010
+
