@@ -66,52 +66,45 @@ type family ComputeIrreducible (a :: Exp) :: Exp where
     ComputeIrreducible (x :%: y) = CheckCornerCase ((Reduce x y) :%: (Reduce y x))
     ComputeIrreducible x = x
 
-type Reduce (x :: Exp) (y :: Exp) = FromPeano (FromTernary (FI (ToTernary (ToPeano x)) (ToTernary (ToPeano y))))
+type Reduce (x :: Exp) (y :: Exp) = FromUnary (FromTernary (FI (ToTernary (ToUnary x)) (ToTernary (ToUnary y))))
 
-type family ToPeano (a :: Exp) :: Peano where
-    ToPeano PZ = PZ'
-    ToPeano (PS rest) = PS' (ToPeano rest)
+type family ToUnary (a :: Exp) :: Unary where
+    ToUnary PZ = UZ'
+    ToUnary (PS rest) = US' (ToUnary rest)
 
-type family FromPeano (a :: Peano) :: Exp where
-    FromPeano PZ' = PZ
-    FromPeano (PS' rest) = PS (FromPeano rest)
+type family FromUnary (a :: Unary) :: Exp where
+    FromUnary UZ' = PZ
+    FromUnary (US' rest) = PS (FromUnary rest)
 
-data Peano where
-    PZ' :: Peano
-    PS' :: Peano -> Peano
+data Unary where
+    UZ' :: Unary
+    US' :: Unary -> Unary
 
-type P1' = PS' PZ'
-type P2' = PS' P1'
-type P3' = PS' P2'
+type U1' = US' UZ'
+type U2' = US' U1'
+type U3' = US' U2'
 
-type P4' = PS' P3'
-type P5' = PS' P4'
-type P6' = PS' P5'
-type P7' = PS' P6'
-type P8' = PS' P7'
-type P9' = PS' P8'
+type family (~+~) (x :: Unary) (y :: Unary) :: Unary where
+    (~+~) x UZ' = x
+    (~+~) x (US' y) = US' (x ~+~ y)
 
-type family (~+~) (x :: Peano) (y :: Peano) :: Peano where
-    (~+~) x PZ' = x
-    (~+~) x (PS' y) = PS' (x ~+~ y)
+type family (~-~) (x :: Unary) (y :: Unary) :: Unary where
+    (~-~) x UZ' = x
+    (~-~) (US' x) (US' y) = x ~-~ y
 
-type family (~-~) (x :: Peano) (y :: Peano) :: Peano where
-    (~-~) x PZ' = x
-    (~-~) (PS' x) (PS' y) = x ~-~ y
+type family (~*~) (x :: Unary) (y :: Unary) :: Unary where
+    (~*~) x UZ' = UZ'
+    (~*~) x (US' y) = x ~+~ (x ~*~ y)
 
-type family (~*~) (x :: Peano) (y :: Peano) :: Peano where
-    (~*~) x PZ' = PZ'
-    (~*~) x (PS' y) = x ~+~ (x ~*~ y)
+type family ToTernary (a :: Unary) :: Ternary where
+    ToTernary UZ' = TBot
+    ToTernary (US' rest) = T1 TBot + ToTernary rest
 
-type family ToTernary (a :: Peano) :: Ternary where
-    ToTernary PZ' = TBot
-    ToTernary (PS' rest) = T1 TBot + ToTernary rest
-
-type family FromTernary (a :: Ternary) :: Peano where
-    FromTernary TBot = PZ'
-    FromTernary (TZ rest) = P3' ~*~ FromTernary rest
-    FromTernary (T1 rest) = (P3' ~*~ FromTernary rest) ~+~ P1'
-    FromTernary (TJ rest) = (P3' ~*~ FromTernary rest) ~-~ P1'
+type family FromTernary (a :: Ternary) :: Unary where
+    FromTernary TBot = UZ'
+    FromTernary (TZ rest) = U3' ~*~ FromTernary rest
+    FromTernary (T1 rest) = (U3' ~*~ FromTernary rest) ~+~ U1'
+    FromTernary (TJ rest) = (U3' ~*~ FromTernary rest) ~-~ U1'
 
 data Ternary where
     TBot :: Ternary
