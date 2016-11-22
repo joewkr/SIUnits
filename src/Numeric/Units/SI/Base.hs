@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE StandaloneDeriving #-}
@@ -6,6 +7,9 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
 module Numeric.Units.SI.Base(Unit(..), SI(..), Mult, NormalForm, Div) where
+
+import Control.DeepSeq
+import GHC.Generics (Generic)
 
 import Numeric.Units.SI.Numerals
 
@@ -129,6 +133,11 @@ type family Div (a :: Unit) (b :: Unit) :: Unit where
     Div a b = NormalForm (a :/: b)
 
 data SI (a :: Unit) b where
-    SI :: !b -> SI a b
+    SI :: !b -> SI a b deriving Generic
 
 deriving instance Show b => Show (SI a b)
+
+instance NFData b => NFData (SI a b)
+
+instance Functor (SI a) where
+    fmap f (SI val) = SI (f val)
