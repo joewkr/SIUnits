@@ -123,13 +123,9 @@ type NormalForm (a :: Unit) =
     Simplify3 (Normalize (RemoveDups (Group (DS EmptyUS EmptyUS) (Split GU (PutPowers a)))))
 
 type family Mult (a :: Unit) (b :: Unit) :: Unit where
-    Mult I b = b
-    Mult a I = a
     Mult a b = NormalForm (a :*: b)
 
 type family Div (a :: Unit) (b :: Unit) :: Unit where
-    Div I b = b
-    Div a I = a
     Div a b = NormalForm (a :/: b)
 
 data SI (a :: Unit) b where
