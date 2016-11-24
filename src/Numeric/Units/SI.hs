@@ -1,10 +1,12 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE InstanceSigs #-}
 module Numeric.Units.SI where
 
 import Control.DeepSeq
@@ -38,3 +40,27 @@ infixl 6 +, -
 
 (-) :: (P.Num b, NormalForm a1 ~ NormalForm a2) => SI a1 b -> SI a2 b -> SI a1 b
 (-) (SI l) (SI r) = SI (l P.- r)
+
+-- Floating
+pi :: P.Floating b => SI I b
+pi = SI P.pi
+
+exp, log :: P.Floating b => SI I b -> SI I b
+sin, cos, tan, asin, acos, atan :: P.Floating b => SI I b -> SI I b
+sinh, cosh, tanh, asinh, acosh, atanh :: P.Floating b => SI I b -> SI I b
+
+exp = P.fmap P.exp
+log = P.fmap P.log
+sin = P.fmap P.sin
+cos = P.fmap P.cos
+asin = P.fmap P.asin
+acos = P.fmap P.acos
+atan = P.fmap P.atan
+sinh = P.fmap P.sinh
+cosh = P.fmap P.cosh
+asinh = P.fmap P.asinh
+acosh = P.fmap P.acosh
+atanh = P.fmap P.atanh
+
+tan = P.fmap P.tan
+tanh = P.fmap P.tanh
