@@ -63,7 +63,7 @@ type family CheckCornerCase (a :: Exp) :: Exp where
 
 type family ComputeIrreducible (a :: Exp) :: Exp where
     ComputeIrreducible PZ = PZ
-    ComputeIrreducible (x :%: y) = CheckCornerCase ((Reduce x y) :%: (Reduce y x))
+    ComputeIrreducible (x :%: y) = CheckCornerCase (Reduce x y :%: Reduce y x)
     ComputeIrreducible x = x
 
 type Reduce (x :: Exp) (y :: Exp) = FromUnary (FromTernary (FI (ToTernary (ToUnary x)) (ToTernary (ToUnary y))))
@@ -156,9 +156,9 @@ type family AbsQ (x :: Ternary) (y :: Ternary) (z ::Ternary) :: Ternary where
     AbsQ (T1 x) y z = AbsQ x y (T1 TBot)
     AbsQ (TJ x) y z = AbsQ x y (TJ TBot)
 
-type Min (x :: Ternary) (y :: Ternary) = MinQ ((Abs y) - (Abs x)) x y TBot
-type Min' (x :: Ternary) (y :: Ternary) = MinQ ((Abs (T1 y)) - (Abs (T1 x))) x y TBot
-type Min'' (x :: Ternary) (y :: Ternary) = MinQ ((Abs (TJ y)) - (Abs (TJ x))) x y TBot
+type Min (x :: Ternary) (y :: Ternary) = MinQ (Abs y - Abs x) x y TBot
+type Min' (x :: Ternary) (y :: Ternary) = MinQ (Abs (T1 y) - Abs (T1 x)) x y TBot
+type Min'' (x :: Ternary) (y :: Ternary) = MinQ (Abs (TJ y) - Abs (TJ x)) x y TBot
 
 type family MinQ (x :: Ternary) (y :: Ternary) (z :: Ternary) (u :: Ternary) :: Ternary where
     MinQ TBot y z TBot = y

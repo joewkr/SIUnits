@@ -97,16 +97,16 @@ type family Simplify (a :: Unit) :: Unit where
     Simplify (a :*: I) = Simplify a
     Simplify (a :^: P1) = Simplify a
 
-    Simplify (a :*: b) = (Simplify a) :*: (Simplify b)
-    Simplify (a :/: b) = (Simplify a) :/: (Simplify b)
-    Simplify (a :^: exp) = (Simplify a) :^: exp
+    Simplify (a :*: b) = Simplify a :*: Simplify b
+    Simplify (a :/: b) = Simplify a :/: Simplify b
+    Simplify (a :^: exp) = Simplify a :^: exp
 
     Simplify a = a
 
 type family PutPowers (a :: Unit) :: Unit where
     PutPowers I = I
-    PutPowers (a :*: b) = (PutPowers a) :*: (PutPowers b)
-    PutPowers (a :/: b) = (PutPowers a) :/: (PutPowers b)
+    PutPowers (a :*: b) = PutPowers a :*: PutPowers b
+    PutPowers (a :/: b) = PutPowers a :/: PutPowers b
     PutPowers (a :^: exp) = a :^: exp
 
     PutPowers a = a :^: P1
