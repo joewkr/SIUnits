@@ -103,19 +103,23 @@ type family Simplify (a :: Unit) :: Unit where
 
     Simplify a = a
 
-type family PutPowers (a :: Unit) :: Unit where
-    PutPowers I = I
-    PutPowers (a :*: b) = PutPowers a :*: PutPowers b
-    PutPowers (a :/: b) = PutPowers a :/: PutPowers b
-    PutPowers (a :^: exp) = a :^: exp
+type family PutPowers (e :: Exp) (a :: Unit) :: Unit where
+    PutPowers e I = I
+    PutPowers e (a :*: b) = PutPowers e a :*: PutPowers e b
+    PutPowers e (a :/: b) = PutPowers e a :/: PutPowers e b
+    PutPowers e (a :^: exp) = a :^: (exp .*. e)
 
-    PutPowers a = a :^: P1
+    PutPowers e a = a :^: e
+
+type family PropagateOuterPower (a :: Unit) :: Unit where
+    PropagateOuterPower (a :^: exp) = PutPowers exp a
+    PropagateOuterPower a = PutPowers P1 a
 
 type EmptyUS = US PZ PZ PZ PZ PZ PZ PZ
 
 type Simplify3 (a :: Unit) = Simplify (Simplify (Simplify a))
 type NormalForm (a :: Unit) =
-    Simplify3 (Normalize (RemoveDups (Group (DS EmptyUS EmptyUS) (Split GU (PutPowers a)))))
+    Simplify3 (Normalize (RemoveDups (Group (DS EmptyUS EmptyUS) (Split GU (PropagateOuterPower a)))))
 
 type family Mult (a :: Unit) (b :: Unit) :: Unit where
     Mult a b = NormalForm (a :*: b)
