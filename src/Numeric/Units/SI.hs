@@ -2,11 +2,12 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE InstanceSigs #-}
+{-# LANGUAGE TypeOperators #-}
 module Numeric.Units.SI where
 
 import Control.DeepSeq
@@ -14,6 +15,7 @@ import GHC.Generics (Generic)
 import qualified Prelude as P
 
 import Numeric.Units.SI.Base
+import Numeric.Units.SI.Derived
 import Numeric.Units.SI.Numerals
 
 data SI (a :: Unit) b where
@@ -64,3 +66,6 @@ atanh = P.fmap P.atanh
 
 tan = P.fmap P.tan
 tanh = P.fmap P.tanh
+
+sqrt :: P.Floating b => SI a b -> SI (NormalForm (a :^: (P1 :%: P2))) b
+sqrt (SI b) = SI (P.sqrt b)
