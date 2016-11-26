@@ -69,3 +69,9 @@ tanh = P.fmap P.tanh
 
 sqrt :: P.Floating b => SI a b -> SI (NormalForm (a :^: (P1 :%: P2))) b
 sqrt (SI b) = SI (P.sqrt b)
+
+(**) :: P.Floating b => SI I b -> b -> SI I b
+(**) (SI b) e = SI (b P.** e)
+
+(^^) :: (P.Fractional a, P.Integral b) => SI I a -> b -> SI I a
+(^^) (SI b) e = SI (b P.^^ e)
