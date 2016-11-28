@@ -31,6 +31,7 @@ import Numeric.Units.SI.Numerals
 data SI (a :: Unit) b where
     SI :: !b -> SI a b deriving Generic
 
+deriving instance P.Eq b => P.Eq (SI a b)
 deriving instance P.Show b => P.Show (SI a b)
 
 instance NFData b => NFData (SI a b)
