@@ -8,7 +8,17 @@
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
-module Numeric.Units.SI where
+module Numeric.Units.SI(
+      module Numeric.Units.SI.Base
+    , module Numeric.Units.SI.Derived
+    , SI(..)
+    , (*), (/), (+), (-)
+    , (**), (^^)
+    , pi
+    , exp, log
+    , sin, cos, tan, asin, acos, atan
+    , sinh, cosh, tanh, asinh, acosh, atanh
+    , sqrt ) where
 
 import Control.DeepSeq
 import GHC.Generics (Generic)
