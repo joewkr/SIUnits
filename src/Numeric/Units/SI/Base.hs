@@ -15,7 +15,7 @@ data Unit where
     A :: Unit -- ampere
     K :: Unit -- kelvin
     Mol :: Unit -- mole
-    Cd :: Unit -- mole
+    Cd :: Unit -- candela
     I :: Unit -- dimensionless
     (:*:) :: Unit -> Unit -> Unit
     (:/:) :: Unit -> Unit -> Unit
