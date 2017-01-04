@@ -90,18 +90,26 @@ type family Simplify (a :: Unit) :: Unit where
     Simplify I = I
     Simplify (a :^: PZ) = I
 
-    Simplify (I :*: b) = Simplify b
-    Simplify (I :^: exp) = I
-
-    Simplify (a :/: I) = Simplify a
-    Simplify (a :*: I) = Simplify a
-    Simplify (a :^: P1) = Simplify a
-
-    Simplify (a :*: b) = Simplify a :*: Simplify b
-    Simplify (a :/: b) = Simplify a :/: Simplify b
-    Simplify (a :^: exp) = Simplify a :^: exp
+    Simplify (a :*: b) = CombineMult (Simplify a) (Simplify b)
+    Simplify (a :/: b) = CombineDiv (Simplify a) (Simplify b)
+    Simplify (a :^: exp) = CombineExp (Simplify a) exp
 
     Simplify a = a
+
+type family CombineMult (a :: Unit) (b :: Unit) :: Unit where
+    CombineMult I I = I
+    CombineMult a I = a
+    CombineMult I b = b
+    CombineMult a b = a :*: b
+
+type family CombineDiv (a :: Unit) (b :: Unit) :: Unit where
+    CombineDiv I I = I
+    CombineDiv a I = a
+    CombineDiv a b = a :/: b
+
+type family CombineExp (a :: Unit) (b :: Exp) :: Unit where
+    CombineExp I e = I
+    CombineExp a e = a :^: e
 
 type family PutPowers (e :: Exp) (a :: Unit) :: Unit where
     PutPowers e I = I
@@ -117,9 +125,8 @@ type family PropagateOuterPower (a :: Unit) :: Unit where
 
 type EmptyUS = US PZ PZ PZ PZ PZ PZ PZ
 
-type Simplify3 (a :: Unit) = Simplify (Simplify (Simplify a))
 type NormalForm (a :: Unit) =
-    Simplify3 (Normalize (RemoveDups (Group (DS EmptyUS EmptyUS) (Split GU (PropagateOuterPower a)))))
+    Simplify (Normalize (RemoveDups (Group (DS EmptyUS EmptyUS) (Split GU (PropagateOuterPower a)))))
 
 type family Mult (a :: Unit) (b :: Unit) :: Unit where
     Mult a b = NormalForm (a :*: b)
