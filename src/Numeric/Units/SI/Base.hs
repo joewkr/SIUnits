@@ -109,6 +109,7 @@ type family CombineDiv (a :: Unit) (b :: Unit) :: Unit where
 
 type family CombineExp (a :: Unit) (b :: Exp) :: Unit where
     CombineExp I e = I
+    CombineExp a P1 = a
     CombineExp a e = a :^: e
 
 type family PutPowers (e :: Exp) (a :: Unit) :: Unit where
