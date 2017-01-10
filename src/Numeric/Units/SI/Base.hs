@@ -4,7 +4,8 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
-module Numeric.Units.SI.Base(Unit(..), Mult, NormalForm, Div) where
+module Numeric.Units.SI.Base(Unit(Kg, M, S, A, K, Mol, Cd, I),
+    Mult, NormalForm, Div, type(*), type(/), type(^)) where
 
 import Numeric.Units.SI.Numerals
 
@@ -20,6 +21,16 @@ data Unit where
     (:*:) :: Unit -> Unit -> Unit
     (:/:) :: Unit -> Unit -> Unit
     (:^:) :: Unit -> Exp -> Unit
+
+type family (*) (a :: Unit) (b :: Unit) :: Unit where
+    (*) a b = NormalForm (a :*: b)
+type family (/) (a :: Unit) (b :: Unit) :: Unit where
+    (/) a b = NormalForm (a :/: b)
+type family (^) (a :: Unit) (b :: Exp) :: Unit where
+    (^) a b = (NormalForm a) :^: b
+
+infixr 8 ^
+infixl 7 *, /
 
 infixr 8 :^:
 infixl 7 :*:, :/:
