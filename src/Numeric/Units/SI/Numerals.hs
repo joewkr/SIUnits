@@ -3,106 +3,94 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
-module Numeric.Units.SI.Numerals(Exp(..), Boolean(..), ComputeIrreducible,
-    P1, P2, P3, P4, P5, P6, P7, P8, P9, type (.+.), type(.*.),
+module Numeric.Units.SI.Numerals(Exp, Boolean(..), ComputeIrreducible,
+    PZ, P1, P2, P3, P4, P5, P6, P7, P8, P9, type(%), type(.+.), type(.*.),
     type(.-.), type(.>.)) where
 
 data Boolean where
     BT :: Boolean
     BF :: Boolean
 
-type P1 = PS PZ
-type P2 = PS P1
-type P3 = PS P2
-type P4 = PS P3
-type P5 = PS P4
-type P6 = PS P5
-type P7 = PS P6
-type P8 = PS P7
-type P9 = PS P8
+type PZ = UZ :%: U1
+
+type P1 = U1 :%: U1
+type P2 = U2 :%: U1
+type P3 = U3 :%: U1
+type P4 = U4 :%: U1
+type P5 = U5 :%: U1
+type P6 = U6 :%: U1
+type P7 = U7 :%: U1
+type P8 = U8 :%: U1
+type P9 = U9 :%: U1
 
 data Exp where
-    PZ :: Exp
-    PS :: Exp -> Exp
-    (:%:) :: Exp -> Exp -> Exp
+    (:%:) :: Unary -> Unary -> Exp
+
+type family (%) (x :: Exp) (y :: Exp) :: Exp where
+    (%) x (y1 :%: y2) = x .*. (y2 :%: y1)
+
 
 type family (.+.) (x :: Exp) (y :: Exp) :: Exp where
-    (.+.) x PZ = x
-    (.+.) (x1 :%: x2) (y1 :%: y2) = ComputeIrreducible (((x1 .*. y2) .+. (x2 .*. y1))  :%: (x2 .*. y2))
-    (.+.) x (y1 :%: y2) = (y1 :%: y2) .+. x
-    (.+.) (x1 :%: x2) y = ComputeIrreducible ((x1 .+. (x2 .*. y))  :%: x2)
-    (.+.) x (PS y) = PS (x .+. y)
+    (.+.) (x1 :%: x2) (y1 :%: y2) = ComputeIrreducible (((x1 ~*~ y2) ~+~ (x2 ~*~ y1)) :%: (x2 ~*~ y2))
 
 type family (.-.) (x :: Exp) (y :: Exp) :: Exp where
-    (.-.) x PZ = x
-    (.-.) (x1 :%: x2) (y1 :%: y2) = ComputeIrreducible (((x1 .*. y2) .-. (x2 .*. y1))  :%: (x2 .*. y2))
-    (.-.) (x1 :%: x2) y = ComputeIrreducible ((x1 .-. (x2 .*. y))  :%: x2)
-    (.-.) (PS x) (PS y) = x .-. y
+    (.-.) (x1 :%: x2) (y1 :%: y2) = CheckZero (ComputeIrreducible (((x1 ~*~ y2) ~-~ (x2 ~*~ y1)) :%: (x2 ~*~ y2)))
 
 type family (.*.) (x :: Exp) (y :: Exp) :: Exp where
-    (.*.) x PZ = PZ
-    (.*.) (x1 :%: x2) (y1 :%: y2) = ComputeIrreducible ((x1 .*. y1) :%: (x2 .*. y2))
-    (.*.) x (y1 :%: y2) = (y1 :%: y2) .*. x
-    (.*.) (x1 :%: x2) y = ComputeIrreducible ((x1 .*. y) :%: x2)
-    (.*.) x (PS y) = x .+. (x .*. y)
+    (.*.) (x1 :%: x2) (y1 :%: y2) = ComputeIrreducible ((x1 ~*~ y1) :%: (x2 ~*~ y2))
 
 type family (.>.) (x :: Exp) (y :: Exp) :: Boolean where
-    (.>.) x PZ = BT
-    (.>.) PZ y = BF
-    (.>.) (x1 :%: x2) (y1 :%: y2) = (x1 .*. y2) .>. (x2 .*. y1)
-    (.>.) x (y1 :%: y2) = (x .*. y2) .>. y1
-    (.>.) (x1 :%: x2) y = x1 .>. (x2 .*. y)
-    (.>.) (PS x) (PS y) = x .>. y
+    (.>.) (x1 :%: x2) (y1 :%: y2) = (x1 ~*~ y2) `Greather` (x2 ~*~ y1)
 
-type family CheckCornerCase (a :: Exp) :: Exp where
-    CheckCornerCase (PZ :%: any) = PZ
-    CheckCornerCase (P1 :%: P1) = P1
-    CheckCornerCase x = x
+type family CheckZero (a :: Exp) :: Exp where
+    CheckZero (UZ :%: n) = PZ
+    CheckZero x = x
 
 type family ComputeIrreducible (a :: Exp) :: Exp where
-    ComputeIrreducible PZ = PZ
-    ComputeIrreducible (x :%: y) = CheckCornerCase (Reduce x y :%: Reduce y x)
-    ComputeIrreducible x = x
+    ComputeIrreducible (x :%: y) = Reduce x y :%: Reduce y x
 
-type Reduce (x :: Exp) (y :: Exp) = FromUnary (FromTernary (FI (ToTernary (ToUnary x)) (ToTernary (ToUnary y))))
+type Reduce (x :: Unary) (y :: Unary) = FromTernary (FI (ToTernary x) (ToTernary y))
 
-type family ToUnary (a :: Exp) :: Unary where
-    ToUnary PZ = UZ'
-    ToUnary (PS rest) = US' (ToUnary rest)
-
-type family FromUnary (a :: Unary) :: Exp where
-    FromUnary UZ' = PZ
-    FromUnary (US' rest) = PS (FromUnary rest)
+type family Greather (a :: Unary) (b :: Unary) :: Boolean where
+    Greather x UZ = BT
+    Greather UZ y = BF
+    Greather (US x) (US y) = x `Greather` y
 
 data Unary where
-    UZ' :: Unary
-    US' :: Unary -> Unary
+    UZ :: Unary
+    US :: Unary -> Unary
 
-type U1' = US' UZ'
-type U2' = US' U1'
-type U3' = US' U2'
+type U1 = US UZ
+type U2 = US U1
+type U3 = US U2
+type U4 = US U3
+type U5 = US U4
+type U6 = US U5
+type U7 = US U6
+type U8 = US U7
+type U9 = US U8
 
 type family (~+~) (x :: Unary) (y :: Unary) :: Unary where
-    (~+~) x UZ' = x
-    (~+~) x (US' y) = US' (x ~+~ y)
+    (~+~) x UZ = x
+    (~+~) x (US y) = US (x ~+~ y)
 
 type family (~-~) (x :: Unary) (y :: Unary) :: Unary where
-    (~-~) x UZ' = x
-    (~-~) (US' x) (US' y) = x ~-~ y
+    (~-~) x UZ = x
+    (~-~) (US x) (US y) = x ~-~ y
 
 type family (~*~) (x :: Unary) (y :: Unary) :: Unary where
-    (~*~) x UZ' = UZ'
-    (~*~) x (US' y) = x ~+~ (x ~*~ y)
+    (~*~) x UZ = UZ
+    (~*~) x (US y) = x ~+~ (x ~*~ y)
 
 type family ToTernary (a :: Unary) :: Ternary where
-    ToTernary UZ' = TBot
-    ToTernary (US' rest) = T1 TBot + ToTernary rest
+    ToTernary UZ = TBot
+    ToTernary (US rest) = T1 TBot + ToTernary rest
 
 type family FromTernary (a :: Ternary) :: Unary where
-    FromTernary TBot = UZ'
-    FromTernary (TZ rest) = U3' ~*~ FromTernary rest
-    FromTernary (T1 rest) = (U3' ~*~ FromTernary rest) ~+~ U1'
-    FromTernary (TJ rest) = (U3' ~*~ FromTernary rest) ~-~ U1'
+    FromTernary TBot = UZ
+    FromTernary (TZ rest) = U3 ~*~ FromTernary rest
+    FromTernary (T1 rest) = (U3 ~*~ FromTernary rest) ~+~ U1
+    FromTernary (TJ rest) = (U3 ~*~ FromTernary rest) ~-~ U1
 
 data Ternary where
     TBot :: Ternary

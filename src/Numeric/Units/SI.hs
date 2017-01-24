@@ -78,7 +78,7 @@ atanh = P.fmap P.atanh
 tan = P.fmap P.tan
 tanh = P.fmap P.tanh
 
-sqrt :: P.Floating b => SI a b -> SI (a ^ (P1 :%: P2)) b
+sqrt :: P.Floating b => SI a b -> SI (a ^ (P1 % P2)) b
 sqrt (SI b) = SI (P.sqrt b)
 
 (**) :: P.Floating b => SI I b -> b -> SI I b
