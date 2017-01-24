@@ -27,7 +27,7 @@ type family (*) (a :: Unit) (b :: Unit) :: Unit where
 type family (/) (a :: Unit) (b :: Unit) :: Unit where
     (/) a b = NormalForm (a :/: b)
 type family (^) (a :: Unit) (b :: Exp) :: Unit where
-    (^) a b = (NormalForm a) :^: b
+    (^) a b = NormalForm (a :^: b)
 
 infixr 8 ^
 infixl 7 *, /
