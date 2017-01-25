@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
@@ -31,16 +32,16 @@ type family (%) (x :: Exp) (y :: Exp) :: Exp where
 
 
 type family (.+.) (x :: Exp) (y :: Exp) :: Exp where
-    (.+.) (x1 ':%: x2) (y1 ':%: y2) = ComputeIrreducible (((x1 ~*~ y2) ~+~ (x2 ~*~ y1)) ':%: (x2 ~*~ y2))
+    (.+.) (x1 ':%: x2) (y1 ':%: y2) = ComputeIrreducible (((x1 * y2) + (x2 * y1)) ':%: (x2 * y2))
 
 type family (.-.) (x :: Exp) (y :: Exp) :: Exp where
-    (.-.) (x1 ':%: x2) (y1 ':%: y2) = CheckZero (ComputeIrreducible (((x1 ~*~ y2) ~-~ (x2 ~*~ y1)) ':%: (x2 ~*~ y2)))
+    (.-.) (x1 ':%: x2) (y1 ':%: y2) = CheckZero (ComputeIrreducible (((x1 * y2) - (x2 * y1)) ':%: (x2 * y2)))
 
 type family (.*.) (x :: Exp) (y :: Exp) :: Exp where
-    (.*.) (x1 ':%: x2) (y1 ':%: y2) = ComputeIrreducible ((x1 ~*~ y1) ':%: (x2 ~*~ y2))
+    (.*.) (x1 ':%: x2) (y1 ':%: y2) = ComputeIrreducible ((x1 * y1) ':%: (x2 * y2))
 
 type family (.>.) (x :: Exp) (y :: Exp) :: Boolean where
-    (.>.) (x1 ':%: x2) (y1 ':%: y2) = (x1 ~*~ y2) `Greather` (x2 ~*~ y1)
+    (.>.) (x1 ':%: x2) (y1 ':%: y2) = (x1 * y2) `Greather` (x2 * y1)
 
 type family CheckZero (a :: Exp) :: Exp where
     CheckZero ('UZ ':%: n) = PZ
@@ -70,17 +71,17 @@ type U7 = 'US  U6
 type U8 = 'US  U7
 type U9 = 'US  U8
 
-type family (~+~) (x :: Unary) (y :: Unary) :: Unary where
-    (~+~) x 'UZ = x
-    (~+~) x ('US y) = 'US (x ~+~ y)
+type family USum (x :: Unary) (y :: Unary) :: Unary where
+    USum x 'UZ = x
+    USum x ('US y) = 'US (x `USum` y)
 
-type family (~-~) (x :: Unary) (y :: Unary) :: Unary where
-    (~-~) x 'UZ = x
-    (~-~) ('US x) ('US y) = x ~-~ y
+type family USub (x :: Unary) (y :: Unary) :: Unary where
+    USub x 'UZ = x
+    USub ('US x) ('US y) = x `USub` y
 
-type family (~*~) (x :: Unary) (y :: Unary) :: Unary where
-    (~*~) x 'UZ = 'UZ
-    (~*~) x ('US y) = x ~+~ (x ~*~ y)
+type family UMul (x :: Unary) (y :: Unary) :: Unary where
+    UMul x 'UZ = 'UZ
+    UMul x ('US y) = x + (x `UMul` y)
 
 type family ToTernary (a :: Unary) :: Ternary where
     ToTernary 'UZ = 'TBot
@@ -88,9 +89,9 @@ type family ToTernary (a :: Unary) :: Ternary where
 
 type family FromTernary (a :: Ternary) :: Unary where
     FromTernary 'TBot = 'UZ
-    FromTernary ('TZ rest) = U3 ~*~ FromTernary rest
-    FromTernary ('T1 rest) = (U3 ~*~ FromTernary rest) ~+~ U1
-    FromTernary ('TJ rest) = (U3 ~*~ FromTernary rest) ~-~ U1
+    FromTernary ('TZ rest) = U3 * FromTernary rest
+    FromTernary ('T1 rest) = (U3 * FromTernary rest) + U1
+    FromTernary ('TJ rest) = (U3 * FromTernary rest) - U1
 
 data Ternary where
     TBot :: Ternary
@@ -104,24 +105,46 @@ type family Opp (a :: Ternary) :: Ternary where
     Opp ('T1 rest) = 'TJ (Opp rest)
     Opp ('TJ rest) = 'T1 (Opp rest)
 
-type family (+) (x :: Ternary) (y :: Ternary) :: Ternary where
-    (+) x 'TBot = x
-    (+) 'TBot y = y
+type family (+) (a :: k) (b :: k) :: k where
+    (+) 'TBot   y = 'TBot   `TSum` y
+    (+) ('TZ x) y = ('TZ x) `TSum` y
+    (+) ('T1 x) y = ('T1 x) `TSum` y
+    (+) ('TJ x) y = ('TJ x) `TSum` y
 
-    (+) ('TZ x) ('TZ y) = 'TZ (x + y)
-    (+) ('TZ x) ('T1 y) = 'T1 (x + y)
-    (+) ('TZ x) ('TJ y) = 'TJ (x + y)
+    (+) 'UZ     y = 'UZ     `USum` y
+    (+) ('US x) y = ('US x) `USum` y
 
-    (+) ('T1 x) ('TZ y) = 'T1 (x + y)
-    (+) ('T1 x) ('T1 y) = 'TJ (x + y + 'T1 'TBot)
-    (+) ('T1 x) ('TJ y) = 'TZ (x + y)
+type family (-) (a :: k) (b :: k) :: k where
+    (-) 'TBot   y = 'TBot   `TSub` y
+    (-) ('TZ x) y = ('TZ x) `TSub` y
+    (-) ('T1 x) y = ('T1 x) `TSub` y
+    (-) ('TJ x) y = ('TJ x) `TSub` y
 
-    (+) ('TJ x) ('TZ y) = 'TJ (x + y)
-    (+) ('TJ x) ('T1 y) = 'TZ (x + y)
-    (+) ('TJ x) ('TJ y) = 'T1 (x + y + 'TJ 'TBot)
+    (-) 'UZ     y = 'UZ     `USub` y
+    (-) ('US x) y = ('US x) `USub` y
 
-type family (-) (x :: Ternary) (y :: Ternary) :: Ternary where
-    (-) x y = x + Opp y
+type family (*) (a :: k) (b :: k) :: k where
+    (*) 'UZ     y = 'UZ     `UMul` y
+    (*) ('US x) y = ('US x) `UMul` y
+
+type family TSum (x :: Ternary) (y :: Ternary) :: Ternary where
+    TSum x 'TBot = x
+    TSum 'TBot y = y
+
+    TSum ('TZ x) ('TZ y) = 'TZ (x `TSum` y)
+    TSum ('TZ x) ('T1 y) = 'T1 (x `TSum` y)
+    TSum ('TZ x) ('TJ y) = 'TJ (x `TSum` y)
+
+    TSum ('T1 x) ('TZ y) = 'T1 (x `TSum` y)
+    TSum ('T1 x) ('T1 y) = 'TJ (x `TSum` y `TSum` 'T1 'TBot)
+    TSum ('T1 x) ('TJ y) = 'TZ (x `TSum` y)
+
+    TSum ('TJ x) ('TZ y) = 'TJ (x `TSum` y)
+    TSum ('TJ x) ('T1 y) = 'TZ (x `TSum` y)
+    TSum ('TJ x) ('TJ y) = 'T1 (x `TSum` y `TSum` 'TJ 'TBot)
+
+type family TSub (x :: Ternary) (y :: Ternary) :: Ternary where
+    TSub x y = x + Opp y
 
 type Sign (x :: Ternary) = SignQ x 'TBot
 
