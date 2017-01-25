@@ -140,8 +140,5 @@ type EmptyUS = US PZ PZ PZ PZ PZ PZ PZ
 type NormalForm (a :: Unit) =
     Simplify (Normalize (RemoveDups (Group (DS EmptyUS EmptyUS) (Split GU (PropagateOuterPower a)))))
 
-type family Mult (a :: Unit) (b :: Unit) :: Unit where
-    Mult a b = NormalForm (a :*: b)
-
-type family Div (a :: Unit) (b :: Unit) :: Unit where
-    Div a b = NormalForm (a :/: b)
+type Mult a b = a * b
+type Div a b = a / b
