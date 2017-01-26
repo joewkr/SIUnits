@@ -11,6 +11,7 @@
 module Numeric.Units.SI(
       module Numeric.Units.SI.Base
     , module Numeric.Units.SI.Derived
+    , module Numeric.Units.SI.Numerals
     , SI(..)
     , (*), (/), (+), (-)
     , (**), (^^)
