@@ -28,6 +28,7 @@ library
                      , StandaloneDeriving
                      , TypeOperators
                      , UndecidableInstances
+                     , PolyKinds
 
   build-depends:       base >=4.9 && <4.10
                      , deepseq >= 1.3
