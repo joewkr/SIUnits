@@ -18,7 +18,7 @@ library
                      , Numeric.Units.SI.Numerals
                      , Numeric.Units.SI.Derived
   -- other-modules:
-  ghc-options:         -Wall -Wno-redundant-constraints -O2
+  ghc-options:         -Wall -O2
   other-extensions:    DataKinds
                      , KindSignatures
                      , NoImplicitPrelude
