@@ -49,7 +49,7 @@ infixl 6 +, -
 (/) :: P.Fractional b => SI a1 b -> SI a2 b -> SI (Div a1 a2) b
 (/) (SI l) (SI r) = SI (l P./ r)
 
-(+) :: P.Num b=> SI a b -> SI a b -> SI a b
+(+) :: P.Num b => SI a b -> SI a b -> SI a b
 (+) (SI l) (SI r) = SI (l P.+ r)
 
 (-) :: P.Num b => SI a b -> SI a b -> SI a b
