@@ -4,13 +4,17 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
-module Numeric.Units.SI.Numerals(Exp, Boolean(..), ComputeIrreducible,
+module Numeric.Units.SI.Numerals(Exp, Boolean(..), If, ComputeIrreducible,
     PZ, P1, P2, P3, P4, P5, P6, P7, P8, P9, type(%), type(.+.), type(.*.),
     type(.-.), type(.>.)) where
 
 data Boolean where
     BT :: Boolean
     BF :: Boolean
+
+type family If (c :: Boolean) (a :: k) (b :: k) :: k where
+    If 'BT a b = a
+    If 'BF a b = b
 
 type PZ = 'UZ ':%: U1
 

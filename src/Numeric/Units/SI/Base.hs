@@ -93,10 +93,6 @@ type family Dif1 (a :: Exp) (b :: Exp) :: Exp where
 type family Dif2 (a :: Exp) (b :: Exp) :: Exp where
     Dif2 a b = If (a .>. b ) PZ (b .-. a)
 
-type family If (c :: Boolean) (a :: Exp) (b :: Exp) :: Exp where
-    If 'BT a b = a
-    If 'BF a b = b
-
 type family RemoveDups (a :: DimSpec) :: DimSpec where
     RemoveDups ('DS ('US kg1 m1 s1 a1 k1 mol1 cd1) ('US kg2 m2 s2 a2 k2 mol2 cd2)) = 'DS
         ('US (Dif1 kg1 kg2) (Dif1 m1 m2) (Dif1 s1 s2) (Dif1 a1 a2) (Dif1 k1 k2) (Dif1 mol1 mol2) (Dif1 cd1 cd2))
