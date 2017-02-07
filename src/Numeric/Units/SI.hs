@@ -19,7 +19,11 @@ module Numeric.Units.SI(
     , exp, log
     , sin, cos, tan, asin, acos, atan
     , sinh, cosh, tanh, asinh, acosh, atanh
-    , sqrt ) where
+    , sqrt
+
+    , (^), zero
+    , p9, p8, p7, p6, p5, p4, p3, p2, p1
+    , m9, m8, m7, m6, m5, m4, m3, m2, m1 ) where
 
 import Control.DeepSeq
 import GHC.Generics (Generic)
@@ -87,3 +91,29 @@ sqrt (SI b) = SI (P.sqrt b)
 
 (^^) :: (P.Fractional a, P.Integral b) => SI I a -> b -> SI I a
 (^^) (SI b) e = SI (b P.^^ e)
+
+data Power (p :: Boolean) (e :: Exp) where
+    Power :: !P.Integer -> Power p e
+
+p9 = Power 9; p9 :: Power 'BT P9
+p8 = Power 8; p8 :: Power 'BT P8
+p7 = Power 7; p7 :: Power 'BT P7
+p6 = Power 6; p6 :: Power 'BT P6
+p5 = Power 5; p5 :: Power 'BT P5
+p4 = Power 4; p4 :: Power 'BT P4
+p3 = Power 3; p3 :: Power 'BT P3
+p2 = Power 2; p2 :: Power 'BT P2
+p1 = Power 1; p1 :: Power 'BT P1
+zero = Power 0; zero :: Power 'BT PZ
+m1 = Power (-1); m1 :: Power 'BF P1
+m2 = Power (-2); m2 :: Power 'BF P2
+m3 = Power (-3); m3 :: Power 'BF P3
+m4 = Power (-4); m4 :: Power 'BF P4
+m5 = Power (-5); m5 :: Power 'BF P5
+m6 = Power (-6); m6 :: Power 'BF P6
+m7 = Power (-7); m7 :: Power 'BF P7
+m8 = Power (-8); m8 :: Power 'BF P8
+m9 = Power (-9); m9 :: Power 'BF P9
+
+(^) :: P.Fractional b => SI a b -> Power p e -> SI (If p (a ^ e) (I / a ^ e)) b
+(^) (SI b) (Power n) = SI (b P.^^ n)
