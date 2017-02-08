@@ -5,6 +5,7 @@
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
@@ -23,7 +24,9 @@ module Numeric.Units.SI(
 
     , (^), zero
     , p9, p8, p7, p6, p5, p4, p3, p2, p1
-    , m9, m8, m7, m6, m5, m4, m3, m2, m1 ) where
+    , m9, m8, m7, m6, m5, m4, m3, m2, m1
+
+    , sum, product ) where
 
 import Control.DeepSeq
 import GHC.Generics (Generic)
@@ -120,3 +123,9 @@ m9 = Power (-9); m9 :: Power 'BF P9
 
 (^) :: P.Fractional b => SI a b -> Power p e -> SI (If p (a ^ e) (I / a ^ e)) b
 (^) (SI b) (Power n) = SI (b P.^^ n)
+
+sum :: forall t a b. (P.Num b, P.Foldable t) => t (SI a b) -> SI a b
+sum = P.foldr (+) (SI 0 :: SI a b)
+
+product :: forall t b. (P.Num b, P.Foldable t) => t (SI I b) -> SI I b
+product = P.foldr (*) (SI 1 :: SI I b)
