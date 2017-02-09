@@ -36,8 +36,8 @@ import Numeric.Units.SI.Base
 import Numeric.Units.SI.Derived
 import Numeric.Units.SI.Numerals
 
-data SI (a :: Unit) b where
-    SI :: !b -> SI a b deriving Generic
+newtype SI (a :: Unit) b where
+    SI :: {unSI :: b} -> SI a b deriving Generic
 
 deriving instance P.Eq b => P.Eq (SI a b)
 deriving instance P.Ord b => P.Ord (SI a b)
