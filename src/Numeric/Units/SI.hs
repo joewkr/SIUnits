@@ -99,7 +99,7 @@ infixr 8 **, ^^, ^
 (^^) (SI b) e = SI (b P.^^ e)
 
 newtype Power (p :: Boolean) (e :: Exp) where
-    Power :: P.Integer -> Power p e
+    Power :: P.Int -> Power p e
 
 p9 = Power 9; p9 :: Power 'BT P9
 p8 = Power 8; p8 :: Power 'BT P8
