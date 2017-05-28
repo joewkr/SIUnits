@@ -38,3 +38,12 @@ library
 
   default-language:    Haskell2010
 
+test-suite test-compile
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      tests
+  main-is:             TryCompile.hs
+  build-depends:       base
+                     , ghc-paths >= 0.1 && < 0.2
+                     , hspec >= 2.4
+  default-language:    Haskell2010
+  ghc-options:         -package ghc -Wall -O2
