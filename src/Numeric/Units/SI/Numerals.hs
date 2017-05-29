@@ -150,6 +150,37 @@ type family TSum (x :: Ternary) (y :: Ternary) :: Ternary where
 type family TSub (x :: Ternary) (y :: Ternary) :: Ternary where
     TSub x y = x + Opp y
 
+type TReverse (x :: Ternary) = TReverseQ 'TBot x
+
+type family TReverseQ (x :: Ternary) (y :: Ternary) :: Ternary where
+    TReverseQ x 'TBot = x
+    TReverseQ x ('T1 y) = TReverseQ ('T1 x) y
+    TReverseQ x ('TZ y) = TReverseQ ('TZ x) y
+    TReverseQ x ('TJ y) = TReverseQ ('TJ x) y
+
+type family TTail (x :: Ternary) :: Ternary where
+    TTail 'TBot = 'TBot
+    TTail ('T1 x) = x
+    TTail ('TZ x) = x
+    TTail ('TJ x) = x
+
+type TMult (x :: Ternary) (y :: Ternary) = TMultQ x y
+
+type family TMultQ (x :: Ternary) (y :: Ternary) :: Ternary where
+    TMultQ x 'TBot = 'TBot
+    TMultQ x y = (TMultH x y) + (TMultQ ('TZ x) (TTail y))
+
+type family TMultH (x :: Ternary) (y :: Ternary) :: Ternary where
+    TMultH 'TBot y = 'TBot
+
+    TMultH ('T1 x) ('T1 y) = 'T1 (TMultH x ('T1 y))
+    TMultH ('T1 x) ('TJ y) = 'TJ (TMultH x ('TJ y))
+
+    TMultH ('TJ x) ('T1 y) = 'TJ (TMultH x ('T1 y))
+    TMultH ('TJ x) ('TJ y) = 'T1 (TMultH x ('TJ y))
+
+    TMultH x y = 'TZ (TMultH (TTail x) y)
+
 type Sign (x :: Ternary) = SignQ x 'TBot
 
 type family SignQ (x :: Ternary) (y :: Ternary) :: Ternary where
