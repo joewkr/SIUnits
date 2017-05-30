@@ -16,20 +16,20 @@ type family If (c :: Boolean) (a :: k) (b :: k) :: k where
     If 'BT a b = a
     If 'BF a b = b
 
-type PZ = 'UZ ':%: U1
+type PZ = 'TBot ':%: TN1
 
-type P1 = U1 ':%: U1
-type P2 = U2 ':%: U1
-type P3 = U3 ':%: U1
-type P4 = U4 ':%: U1
-type P5 = U5 ':%: U1
-type P6 = U6 ':%: U1
-type P7 = U7 ':%: U1
-type P8 = U8 ':%: U1
-type P9 = U9 ':%: U1
+type P1 = TN1 ':%: TN1
+type P2 = TN2 ':%: TN1
+type P3 = TN3 ':%: TN1
+type P4 = TN4 ':%: TN1
+type P5 = TN5 ':%: TN1
+type P6 = TN6 ':%: TN1
+type P7 = TN7 ':%: TN1
+type P8 = TN8 ':%: TN1
+type P9 = TN9 ':%: TN1
 
 data Exp where
-    (:%:) :: Unary -> Unary -> Exp
+    (:%:) :: Ternary -> Ternary -> Exp
 
 type family (%) (x :: Exp) (y :: Exp) :: Exp where
     (%) x (y1 ':%: y2) = x .*. (y2 ':%: y1)
@@ -48,54 +48,34 @@ type family (.>.) (x :: Exp) (y :: Exp) :: Boolean where
     (.>.) (x1 ':%: x2) (y1 ':%: y2) = (x1 * y2) `Greather` (x2 * y1)
 
 type family CheckZero (a :: Exp) :: Exp where
-    CheckZero ('UZ ':%: n) = PZ
+    CheckZero ('TBot ':%: n) = PZ
     CheckZero x = x
 
 type family ComputeIrreducible (a :: Exp) :: Exp where
     ComputeIrreducible (x ':%: y) = Reduce x y ':%: Reduce y x
 
-type Reduce (x :: Unary) (y :: Unary) = FromTernary (FI (ToTernary x) (ToTernary y))
+type Reduce (x :: Ternary) (y :: Ternary) = TReverse (TStrip (TReverse (FI x  y)))
 
-type family Greather (a :: Unary) (b :: Unary) :: Boolean where
-    Greather x 'UZ = 'BT
-    Greather 'UZ y = 'BF
-    Greather ('US x) ('US y) = x `Greather` y
+type family TStrip (x :: Ternary) :: Ternary where
+    TStrip 'TBot = 'TBot
+    TStrip ('TZ x) = TStrip x
+    TStrip x = x
 
-data Unary where
-    UZ :: Unary
-    US :: Unary -> Unary
+type Greather (a :: Ternary) (b :: Ternary) = GreatherQ (TReverse (a - b))
 
-type U1 = 'US 'UZ
-type U2 = 'US  U1
-type U3 = 'US  U2
-type U4 = 'US  U3
-type U5 = 'US  U4
-type U6 = 'US  U5
-type U7 = 'US  U6
-type U8 = 'US  U7
-type U9 = 'US  U8
+type family GreatherQ (x :: Ternary) :: Boolean where
+    GreatherQ ('T1 x) = 'BT
+    GreatherQ x = 'BF
 
-type family USum (x :: Unary) (y :: Unary) :: Unary where
-    USum x 'UZ = x
-    USum x ('US y) = 'US (x `USum` y)
-
-type family USub (x :: Unary) (y :: Unary) :: Unary where
-    USub x 'UZ = x
-    USub ('US x) ('US y) = x `USub` y
-
-type family UMul (x :: Unary) (y :: Unary) :: Unary where
-    UMul x 'UZ = 'UZ
-    UMul x ('US y) = x + (x `UMul` y)
-
-type family ToTernary (a :: Unary) :: Ternary where
-    ToTernary 'UZ = 'TBot
-    ToTernary ('US rest) = 'T1 'TBot + ToTernary rest
-
-type family FromTernary (a :: Ternary) :: Unary where
-    FromTernary 'TBot = 'UZ
-    FromTernary ('TZ rest) = U3 * FromTernary rest
-    FromTernary ('T1 rest) = (U3 * FromTernary rest) + U1
-    FromTernary ('TJ rest) = (U3 * FromTernary rest) - U1
+type TN1 = 'T1 'TBot
+type TN2 = TN1 + TN1
+type TN3 = TN2 + TN1
+type TN4 = TN3 + TN1
+type TN5 = TN4 + TN1
+type TN6 = TN5 + TN1
+type TN7 = TN6 + TN1
+type TN8 = TN7 + TN1
+type TN9 = TN8 + TN1
 
 data Ternary where
     TBot :: Ternary
@@ -109,27 +89,9 @@ type family Opp (a :: Ternary) :: Ternary where
     Opp ('T1 rest) = 'TJ (Opp rest)
     Opp ('TJ rest) = 'T1 (Opp rest)
 
-type family (+) (a :: k) (b :: k) :: k where
-    (+) 'TBot   y = 'TBot   `TSum` y
-    (+) ('TZ x) y = ('TZ x) `TSum` y
-    (+) ('T1 x) y = ('T1 x) `TSum` y
-    (+) ('TJ x) y = ('TJ x) `TSum` y
-
-    (+) 'UZ     y = 'UZ     `USum` y
-    (+) ('US x) y = ('US x) `USum` y
-
-type family (-) (a :: k) (b :: k) :: k where
-    (-) 'TBot   y = 'TBot   `TSub` y
-    (-) ('TZ x) y = ('TZ x) `TSub` y
-    (-) ('T1 x) y = ('T1 x) `TSub` y
-    (-) ('TJ x) y = ('TJ x) `TSub` y
-
-    (-) 'UZ     y = 'UZ     `USub` y
-    (-) ('US x) y = ('US x) `USub` y
-
-type family (*) (a :: k) (b :: k) :: k where
-    (*) 'UZ     y = 'UZ     `UMul` y
-    (*) ('US x) y = ('US x) `UMul` y
+type (+) (x :: Ternary) (y :: Ternary) = x `TSum` y
+type (-) (x :: Ternary) (y :: Ternary) = x `TSub` y
+type (*) (x :: Ternary) (y :: Ternary) = x `TMult` y
 
 type family TSum (x :: Ternary) (y :: Ternary) :: Ternary where
     TSum x 'TBot = x
