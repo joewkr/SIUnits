@@ -18,6 +18,10 @@ main = hspec $ do
             tryCompile "tests/Sum.hs" `shouldReturn` True
         it "compiles difference" $ do
             tryCompile "tests/Diff.hs" `shouldReturn` True
+        it "compiles exponentiation" $ do
+            tryCompile "tests/Exp.hs" `shouldReturn` True
+        it "compiles square roots" $ do
+            tryCompile "tests/Sqrt.hs" `shouldReturn` True
     describe "Compile-time behaviour: malformed samples" $ do
         it "rejects malformed sum" $ do
             tryCompile "tests/MalformedSum.hs" `shouldReturn` False
