@@ -5,7 +5,6 @@ module CompileTest where
 import Numeric.Units.SI
 import Prelude hiding((+))
 
-test :: SI (M * S) Double
 test = a + b
   where
     a :: SI S Double
