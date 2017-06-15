@@ -126,11 +126,9 @@ type family TTail (x :: Ternary) :: Ternary where
     TTail ('TZ x) = x
     TTail ('TJ x) = x
 
-type TMult (x :: Ternary) (y :: Ternary) = TMultQ x y
-
-type family TMultQ (x :: Ternary) (y :: Ternary) :: Ternary where
-    TMultQ x 'TBot = 'TBot
-    TMultQ x y = (TMultH x y) + (TMultQ ('TZ x) (TTail y))
+type family TMult (x :: Ternary) (y :: Ternary) :: Ternary where
+    TMult x 'TBot = 'TBot
+    TMult x y = (TMultH x y) + (TMult ('TZ x) (TTail y))
 
 type family TMultH (x :: Ternary) (y :: Ternary) :: Ternary where
     TMultH 'TBot y = 'TBot
