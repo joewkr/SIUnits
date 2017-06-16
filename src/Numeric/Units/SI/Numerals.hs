@@ -4,7 +4,7 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
-module Numeric.Units.SI.Numerals(Exp, Boolean(..), If, ComputeIrreducible,
+module Numeric.Units.SI.Numerals(Exp, Boolean(..), If, ComputeIrreducible, Negate,
     PZ, P1, P2, P3, P4, P5, P6, P7, P8, P9, type(%), type(.+.), type(.*.),
     type(.-.), type(.>.)) where
 
@@ -30,6 +30,8 @@ type P9 = TN9 ':%: TN1
 
 data Exp where
     (:%:) :: Ternary -> Ternary -> Exp
+
+type Negate (x :: Exp) = x .*. ((Opp TN1) ':%: TN1)
 
 type family (%) (x :: Exp) (y :: Exp) :: Exp where
     (%) x (y1 ':%: y2) = x .*. (y2 ':%: y1)
