@@ -15,9 +15,8 @@ cabal-version:       >=1.10
 library
   exposed-modules:     Numeric.Units.SI
                      , Numeric.Units.SI.Base
-                     , Numeric.Units.SI.Numerals
                      , Numeric.Units.SI.Derived
-  -- other-modules:
+  other-modules:       Numeric.Units.SI.Internal.Numerals
   ghc-options:         -Wall -O2
   other-extensions:    DataKinds
                      , GADTs

@@ -2,8 +2,8 @@
 {-# LANGUAGE TypeOperators #-}
 module Numeric.Units.SI.Derived where
 
-import Numeric.Units.SI.Numerals
 import Numeric.Units.SI.Base
+import Numeric.Units.SI.Internal.Numerals
 
 type Herz = I / S
 

@@ -4,7 +4,7 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
-module Numeric.Units.SI.Numerals(Exp, Boolean(..), If, ComputeIrreducible, Negate,
+module Numeric.Units.SI.Internal.Numerals(Exp, Boolean(..), If, ComputeIrreducible, Negate,
     PZ, P1, P2, P3, P4, P5, P6, P7, P8, P9, type(%), type(.+.), type(.*.),
     type(.-.), type(.>.)) where
 

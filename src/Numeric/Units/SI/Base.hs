@@ -8,7 +8,7 @@ module Numeric.Units.SI.Base(Unit,
     Kg, M, S, A, K, Mol, Cd, I,
     Mult, NormalForm, Div, type(*), type(/), type(^)) where
 
-import Numeric.Units.SI.Numerals
+import Numeric.Units.SI.Internal.Numerals
 
 type Kg = 'Kg_
 type M = 'M_
