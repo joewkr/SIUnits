@@ -80,23 +80,15 @@ type family CombineUntis (a :: UnitsSpec) (b :: Unit) :: UnitsSpec where
     CombineUntis ('US kg m s a k mol cd) (Mol ':^: exp) = 'US kg m s a k (mol.+.exp) cd
     CombineUntis ('US kg m s a k mol cd) (Cd  ':^: exp) = 'US kg m s a k mol (cd.+.exp)
 
-type family Switch (op :: Op) :: Op where
-    Switch 'Plus = 'Minus
-    Switch 'Minus = 'Plus
+type Split (a :: Unit) = Unwind (SplitQ 'BF a)
+type family SplitQ (switch :: Boolean) (a :: Unit) :: Gather where
+    SplitQ switch (a ':*: b) = Concat (SplitQ switch a) (SplitQ switch b)
+    SplitQ switch (a ':/: b) = Concat (SplitQ switch a) (SplitQ (Not switch) b)
+    SplitQ switch a = 'GU (Apply switch a) 'GZ
 
-data Op where
-    Plus :: Op
-    Minus :: Op
-
-type Split (a :: Unit) = Unwind (SplitQ 'Plus a)
-type family SplitQ (op :: Op) (a :: Unit) :: Gather where
-    SplitQ op (a ':*: b) = Concat (SplitQ op a) (SplitQ op b)
-    SplitQ op (a ':/: b) = Concat (SplitQ op a) (SplitQ (Switch op) b)
-    SplitQ op a = 'GU (Apply op a) 'GZ
-
-type family Apply (op :: Op) (a :: Unit) :: Unit where
-    Apply 'Minus (a ':^: exp) = a ':^: (Negate exp)
-    Apply op a = a
+type family Apply (switch :: Boolean) (a :: Unit) :: Unit where
+    Apply 'BT (a ':^: exp) = a ':^: (Negate exp)
+    Apply switch a = a
 
 type family Normalize (a :: UnitsSpec) :: Unit where
     Normalize ('US kg1 m1 s1 a1 k1 mol1 cd1) =
