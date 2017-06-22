@@ -17,6 +17,7 @@ library
                      , Numeric.Units.SI.Base
                      , Numeric.Units.SI.Derived
   other-modules:       Numeric.Units.SI.Internal.Numerals
+                     , Numeric.Units.SI.Internal.Boolean
   ghc-options:         -Wall -O2
   other-extensions:    DataKinds
                      , GADTs

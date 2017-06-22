@@ -9,6 +9,7 @@ module Numeric.Units.SI.Base(Unit,
     Mult, NormalForm, Div, type(*), type(/), type(^)) where
 
 import Numeric.Units.SI.Internal.Numerals
+import Numeric.Units.SI.Internal.Boolean
 
 type Kg = 'Kg_
 type M = 'M_

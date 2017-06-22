@@ -1,6 +1,5 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
@@ -10,13 +9,7 @@ module Numeric.Units.SI.Internal.Numerals(Exp, Boolean(..), If, ComputeIrreducib
     M1, M2, M3, M4, M5, M6, M7, M8, M9,
     type(%), type(.+.), type(.*.), type(.-.), type(.>.)) where
 
-data Boolean where
-    BT :: Boolean
-    BF :: Boolean
-
-type family If (c :: Boolean) (a :: k) (b :: k) :: k where
-    If 'BT a b = a
-    If 'BF a b = b
+import Numeric.Units.SI.Internal.Boolean
 
 type M9 = (Opp TN9) ':%: TN1
 type M8 = (Opp TN8) ':%: TN1
