@@ -21,6 +21,8 @@ main = hspec $ do
             tryCompile "tests/Exp.hs" `shouldReturn` True
         it "compiles square roots" $ do
             tryCompile "tests/Sqrt.hs" `shouldReturn` True
+        it "compiles quantities fractional exponents" $ do
+            tryCompile "tests/QuExp.hs" `shouldReturn` True
     describe "Compile-time behaviour: malformed samples" $ do
         it "rejects malformed sum" $ do
             tryCompile "tests/MalformedSum.hs" `shouldReturn` False

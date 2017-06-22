@@ -5,8 +5,10 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
 module Numeric.Units.SI.Internal.Numerals(Exp, Boolean(..), If, ComputeIrreducible, Negate,
-    PZ, P1, P2, P3, P4, P5, P6, P7, P8, P9, type(%), type(.+.), type(.*.),
-    type(.-.), type(.>.)) where
+    PZ,
+    P1, P2, P3, P4, P5, P6, P7, P8, P9,
+    M1, M2, M3, M4, M5, M6, M7, M8, M9,
+    type(%), type(.+.), type(.*.), type(.-.), type(.>.)) where
 
 data Boolean where
     BT :: Boolean
@@ -15,6 +17,16 @@ data Boolean where
 type family If (c :: Boolean) (a :: k) (b :: k) :: k where
     If 'BT a b = a
     If 'BF a b = b
+
+type M9 = (Opp TN9) ':%: TN1
+type M8 = (Opp TN8) ':%: TN1
+type M7 = (Opp TN7) ':%: TN1
+type M6 = (Opp TN6) ':%: TN1
+type M5 = (Opp TN5) ':%: TN1
+type M4 = (Opp TN4) ':%: TN1
+type M3 = (Opp TN3) ':%: TN1
+type M2 = (Opp TN2) ':%: TN1
+type M1 = (Opp TN1) ':%: TN1
 
 type PZ = 'TBot ':%: TN1
 
@@ -53,8 +65,11 @@ type family CheckZero (a :: Exp) :: Exp where
     CheckZero ('TBot ':%: n) = PZ
     CheckZero x = x
 
+type family CheckNegative (a :: Exp) :: Exp where
+    CheckNegative (a ':%: b) = If (b `Greather` TN0) (a ':%: b) ((Opp a) ':%: (Opp b))
+
 type family ComputeIrreducible (a :: Exp) :: Exp where
-    ComputeIrreducible (x ':%: y) = Reduce x y ':%: Reduce y x
+    ComputeIrreducible (x ':%: y) = CheckNegative (Reduce x y ':%: Reduce y x)
 
 type Reduce (x :: Ternary) (y :: Ternary) = TReverse (TStrip (TReverse (FI x  y)))
 
@@ -69,6 +84,7 @@ type family GreatherQ (x :: Ternary) :: Boolean where
     GreatherQ ('T1 x) = 'BT
     GreatherQ x = 'BF
 
+type TN0 = 'TZ 'TBot
 type TN1 = 'T1 'TBot
 type TN2 = TN1 + TN1
 type TN3 = TN2 + TN1
