@@ -52,14 +52,14 @@ type family (.*.) (x :: Exp) (y :: Exp) :: Exp where
     (.*.) (x1 ':%: x2) (y1 ':%: y2) = ComputeIrreducible ((x1 * y1) ':%: (x2 * y2))
 
 type family (.>.) (x :: Exp) (y :: Exp) :: Boolean where
-    (.>.) (x1 ':%: x2) (y1 ':%: y2) = (x1 * y2) `Greather` (x2 * y1)
+    (.>.) (x1 ':%: x2) (y1 ':%: y2) = (x1 * y2) `Greater` (x2 * y1)
 
 type family CheckZero (a :: Exp) :: Exp where
     CheckZero ('TBot ':%: n) = PZ
     CheckZero x = x
 
 type family CheckNegative (a :: Exp) :: Exp where
-    CheckNegative (a ':%: b) = If (b `Greather` TN0) (a ':%: b) ((Opp a) ':%: (Opp b))
+    CheckNegative (a ':%: b) = If (b `Greater` TN0) (a ':%: b) ((Opp a) ':%: (Opp b))
 
 type family ComputeIrreducible (a :: Exp) :: Exp where
     ComputeIrreducible (x ':%: y) = CheckNegative (Reduce x y ':%: Reduce y x)
@@ -71,11 +71,11 @@ type family TStrip (x :: Ternary) :: Ternary where
     TStrip ('TZ x) = TStrip x
     TStrip x = x
 
-type Greather (a :: Ternary) (b :: Ternary) = GreatherQ (TReverse (a - b))
+type Greater (a :: Ternary) (b :: Ternary) = GreaterQ (TReverse (a - b))
 
-type family GreatherQ (x :: Ternary) :: Boolean where
-    GreatherQ ('T1 x) = 'BT
-    GreatherQ x = 'BF
+type family GreaterQ (x :: Ternary) :: Boolean where
+    GreaterQ ('T1 x) = 'BT
+    GreaterQ x = 'BF
 
 type TN0 = 'TZ 'TBot
 type TN1 = 'T1 'TBot
