@@ -27,13 +27,21 @@ main = hspec $ do
         it "rejects malformed sum" $ do
             tryCompile "tests/MalformedSum.hs" `shouldReturn` False
 
+-- We are not interested in the actual text of compile errors, just
+-- in ghc's return code.
+messager :: FatalMessager
+messager _ = return ()
+
+logAction :: LogAction
+logAction _ _ _ _ _ _ = return ()
+
 tryCompile :: String -> IO Bool
 tryCompile = compile >=> toBool
   where
     toBool Succeeded = return True
     toBool Failed = return False
 
-    compile test = defaultErrorHandler defaultFatalMessager defaultFlushOut $ do
+    compile test = defaultErrorHandler messager defaultFlushOut $ do
         runGhc (Just libdir) $ do
             dflags <- getSessionDynFlags
             setSessionDynFlags (dflags{
@@ -41,6 +49,7 @@ tryCompile = compile >=> toBool
                 , hscTarget = HscInterpreted
                 , includePaths = ["src/"] ++ includePaths dflags
                 , importPaths = ["src/"] ++ importPaths dflags
+                , log_action = logAction
                 })
             target <- guessTarget test Nothing
             setTargets [target]
