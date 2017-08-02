@@ -23,9 +23,17 @@ main = hspec $ do
             tryCompile "tests/Sqrt.hs" `shouldReturn` True
         it "compiles quantities fractional exponents" $ do
             tryCompile "tests/QuExp.hs" `shouldReturn` True
+        it "reduces repetition to exponentiation" $ do
+            tryCompile "tests/MultipleRepetitions.hs" `shouldReturn` True
+        it "reduces nested exponentiation" $ do
+            tryCompile "tests/NestedExp.hs" `shouldReturn` True
+        it "reduces inner nested exponentiation" $ do
+            tryCompile "tests/InnerNestedExp.hs" `shouldReturn` True
     describe "Compile-time behaviour: malformed samples" $ do
         it "rejects malformed sum" $ do
             tryCompile "tests/MalformedSum.hs" `shouldReturn` False
+        it "rejects sum of mixture of raw and dimensional entities" $ do
+            tryCompile "tests/MixedSum.hs" `shouldReturn` False
 
 -- We are not interested in the actual text of compile errors, just
 -- in ghc's return code.
