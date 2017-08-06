@@ -38,6 +38,10 @@ data Exp where
 
 type Negate (x :: Exp) = x .*. ((Opp TN1) ':%: TN1)
 
+infixl 7 %, .*.
+infixl 6 .+., .-.
+infix  4 .>.
+
 type family (%) (x :: Exp) (y :: Exp) :: Exp where
     (%) x (y1 ':%: y2) = x .*. (y2 ':%: y1)
 
