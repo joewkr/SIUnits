@@ -6,45 +6,51 @@ import GHC
 import GHC.Paths ( libdir )
 import Test.Hspec
 
+data ResultExpectation = Good | Bad
+
 main :: IO ()
 main = hspec $ do
     describe "Compile-time behaviour: correct samples" $ do
         it "compiles multiplication" $ do
-            tryCompile "tests/Multiply.hs" `shouldReturn` True
+            tryCompile Good "tests/Multiply.hs" `shouldReturn` True
         it "compiles division" $ do
-            tryCompile "tests/Divide.hs" `shouldReturn` True
+            tryCompile Good "tests/Divide.hs" `shouldReturn` True
         it "compiles sum" $ do
-            tryCompile "tests/Sum.hs" `shouldReturn` True
+            tryCompile Good "tests/Sum.hs" `shouldReturn` True
         it "compiles difference" $ do
-            tryCompile "tests/Diff.hs" `shouldReturn` True
+            tryCompile Good "tests/Diff.hs" `shouldReturn` True
         it "compiles exponentiation" $ do
-            tryCompile "tests/Exp.hs" `shouldReturn` True
+            tryCompile Good "tests/Exp.hs" `shouldReturn` True
         it "compiles square roots" $ do
-            tryCompile "tests/Sqrt.hs" `shouldReturn` True
+            tryCompile Good "tests/Sqrt.hs" `shouldReturn` True
         it "compiles quantities fractional exponents" $ do
-            tryCompile "tests/QuExp.hs" `shouldReturn` True
+            tryCompile Good "tests/QuExp.hs" `shouldReturn` True
         it "reduces repetition to exponentiation" $ do
-            tryCompile "tests/MultipleRepetitions.hs" `shouldReturn` True
+            tryCompile Good "tests/MultipleRepetitions.hs" `shouldReturn` True
         it "reduces nested exponentiation" $ do
-            tryCompile "tests/NestedExp.hs" `shouldReturn` True
+            tryCompile Good "tests/NestedExp.hs" `shouldReturn` True
         it "reduces inner nested exponentiation" $ do
-            tryCompile "tests/InnerNestedExp.hs" `shouldReturn` True
+            tryCompile Good "tests/InnerNestedExp.hs" `shouldReturn` True
     describe "Compile-time behaviour: malformed samples" $ do
         it "rejects malformed sum" $ do
-            tryCompile "tests/MalformedSum.hs" `shouldReturn` False
+            tryCompile Bad "tests/MalformedSum.hs" `shouldReturn` False
         it "rejects sum of mixture of raw and dimensional entities" $ do
-            tryCompile "tests/MixedSum.hs" `shouldReturn` False
+            tryCompile Bad "tests/MixedSum.hs" `shouldReturn` False
 
 -- We are not interested in the actual text of compile errors, just
 -- in ghc's return code.
 messager :: FatalMessager
 messager _ = return ()
 
-logAction :: LogAction
-logAction _ _ _ _ _ _ = return ()
+silentLogAction :: LogAction
+silentLogAction _ _ _ _ _ _ = return ()
 
-tryCompile :: String -> IO Bool
-tryCompile = compile >=> toBool
+tryCompile :: ResultExpectation -> String -> IO Bool
+tryCompile Good = tryCompileG defaultLogAction
+tryCompile Bad = tryCompileG silentLogAction
+
+tryCompileG :: LogAction -> String -> IO Bool
+tryCompileG logAction = compile >=> toBool
   where
     toBool Succeeded = return True
     toBool Failed = return False
