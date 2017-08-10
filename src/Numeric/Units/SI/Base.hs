@@ -6,6 +6,7 @@
 {-# LANGUAGE UndecidableInstances #-}
 module Numeric.Units.SI.Base(Unit,
     Kg, M, S, A, K, Mol, Cd, I,
+    MultiplyExp, HasMultTag, GetMultTag, DropMultTag, HasReducingMultTag,
     Mult, NormalForm, Div, type(*), type(/), type(^)) where
 
 import Numeric.Units.SI.Internal.Numerals
@@ -29,9 +30,16 @@ data Unit where
     Mol_ :: Unit -- mole
     Cd_ :: Unit -- candela
     I_ :: Unit -- dimensionless
+    Tag :: TagType -> Unit
     (:*:) :: Unit -> Unit -> Unit
     (:/:) :: Unit -> Unit -> Unit
     (:^:) :: Unit -> Exp -> Unit
+
+data TagType where
+    Multiply :: Exp -> TagType
+
+type MultiplyExp e u = 'Tag ('Multiply e) ':*: u
+type MultiplyZero = 'Multiply PZ
 
 type family (*) (a :: Unit) (b :: Unit) :: Unit where
     (*) a b = NormalForm (a ':*: b)
@@ -47,7 +55,7 @@ infixr 8 :^:
 infixl 7 :*:, :/:
 
 data UnitsSpec where
-    US :: Exp -> Exp -> Exp -> Exp -> Exp -> Exp -> Exp -> UnitsSpec
+    US :: TagType -> Exp -> Exp -> Exp -> Exp -> Exp -> Exp -> Exp -> UnitsSpec
 
 data Gather where
     GU :: Unit -> Gather -> Gather
@@ -62,23 +70,41 @@ type family Concat (a :: Gather) (b :: Gather) :: Gather where
     Concat a 'GZ = a
     Concat ('GU u rest) b = 'GU u (Concat rest b)
 
-type EmptyUS = 'US PZ PZ PZ PZ PZ PZ PZ
+type EmptyUS = 'US MultiplyZero PZ PZ PZ PZ PZ PZ PZ
 type Group (a :: Unit) = GroupQ EmptyUS a
 
 type family GroupQ (a :: UnitsSpec) (b :: Unit) :: UnitsSpec where
     GroupQ spec (a ':*: rest) = GroupQ (CombineUntis spec a) rest
     GroupQ spec a = CombineUntis spec a
 
-type family CombineUntis (a :: UnitsSpec) (b :: Unit) :: UnitsSpec where
-    CombineUntis ('US kg m s a k mol cd) I = 'US kg m s a k mol cd
+type family GetSpec (spec :: UnitsSpec) (u :: Unit) :: Exp where
+    GetSpec ('US tag kg m s a k mol cd) Kg  = kg
+    GetSpec ('US tag kg m s a k mol cd) M   = m
+    GetSpec ('US tag kg m s a k mol cd) S   = s
+    GetSpec ('US tag kg m s a k mol cd) A   = a
+    GetSpec ('US tag kg m s a k mol cd) K   = k
+    GetSpec ('US tag kg m s a k mol cd) Mol = mol
+    GetSpec ('US tag kg m s a k mol cd) Cd  = cd
 
-    CombineUntis ('US kg m s a k mol cd) (Kg  ':^: exp) = 'US (kg.+.exp) m s a k mol cd
-    CombineUntis ('US kg m s a k mol cd) (M   ':^: exp) = 'US kg (m.+.exp) s a k mol cd
-    CombineUntis ('US kg m s a k mol cd) (S   ':^: exp) = 'US kg m (s.+.exp) a k mol cd
-    CombineUntis ('US kg m s a k mol cd) (A   ':^: exp) = 'US kg m s (a.+.exp) k mol cd
-    CombineUntis ('US kg m s a k mol cd) (K   ':^: exp) = 'US kg m s a (k.+.exp) mol cd
-    CombineUntis ('US kg m s a k mol cd) (Mol ':^: exp) = 'US kg m s a k (mol.+.exp) cd
-    CombineUntis ('US kg m s a k mol cd) (Cd  ':^: exp) = 'US kg m s a k mol (cd.+.exp)
+type family UpdateSpec (spec :: UnitsSpec) (u :: Unit) (v :: Exp) :: UnitsSpec where
+    UpdateSpec ('US tag kg m s a k mol cd) Kg  val = 'US tag val m   s   a   k   mol cd
+    UpdateSpec ('US tag kg m s a k mol cd) M   val = 'US tag kg  val s   a   k   mol cd
+    UpdateSpec ('US tag kg m s a k mol cd) S   val = 'US tag kg  m   val a   k   mol cd
+    UpdateSpec ('US tag kg m s a k mol cd) A   val = 'US tag kg  m   s   val k   mol cd
+    UpdateSpec ('US tag kg m s a k mol cd) K   val = 'US tag kg  m   s   a   val mol cd
+    UpdateSpec ('US tag kg m s a k mol cd) Mol val = 'US tag kg  m   s   a   k   val cd
+    UpdateSpec ('US tag kg m s a k mol cd) Cd  val = 'US tag kg  m   s   a   k   mol val
+
+type family CombineUntis (a :: UnitsSpec) (b :: Unit) :: UnitsSpec where
+    CombineUntis spec I = spec
+
+    CombineUntis spec ('Tag t ':^: exp) = HandleTags spec t exp
+
+    CombineUntis spec (u  ':^: exp) = UpdateSpec spec u ((GetSpec spec u).+.exp)
+
+type family HandleTags (a :: UnitsSpec) (b :: TagType) (e :: Exp) :: UnitsSpec where
+    HandleTags ('US ('Multiply tag) kg m s a k mol cd) ('Multiply factor) exp =
+        ('US ('Multiply (tag.+.factor.*.exp)) kg m s a k mol cd)
 
 type Split (a :: Unit) = Unwind (SplitQ 'BF a)
 type family SplitQ (switch :: Boolean) (a :: Unit) :: Gather where
@@ -91,19 +117,21 @@ type family Apply (switch :: Boolean) (a :: Unit) :: Unit where
     Apply switch a = a
 
 type family Normalize (a :: UnitsSpec) :: Unit where
-    Normalize ('US kg1 m1 s1 a1 k1 mol1 cd1) =
-        (   Kg ':^: kg1
+    Normalize ('US tag kg1 m1 s1 a1 k1 mol1 cd1) =
+        ('Tag tag
+        ':*: (Kg ':^: kg1
         ':*: M ':^: m1
         ':*: S ':^: s1
         ':*: A ':^: a1
         ':*: K ':^: k1
         ':*: Mol ':^: mol1
-        ':*: Cd ':^: cd1)
+        ':*: Cd ':^: cd1))
 
 type family Simplify (a :: Unit) :: Unit where
     Simplify I = I
     Simplify (a ':^: PZ) = I
 
+    Simplify ('Tag MultiplyZero ':*: b) = Simplify b
     Simplify (a ':*: b) = CombineMult (Simplify a) (Simplify b)
     Simplify (a ':/: b) = CombineDiv (Simplify a) (Simplify b)
     Simplify (a ':^: exp) = CombineExp (Simplify a) exp
@@ -139,6 +167,21 @@ type family PropagateOuterPower (a :: Unit) :: Unit where
     PropagateOuterPower a = PutPowers P1 a
 
 type NormalForm (a :: Unit) = Simplify (Normalize (Group (Split (PropagateOuterPower a))))
+
+type family HasMultTag (a :: Unit) :: Boolean where
+    HasMultTag (Tag (Multiply t) ':*: rest) = 'BT
+    HasMultTag otherwise = 'BF
+
+type family HasReducingMultTag (a :: Unit) :: Boolean where
+    HasReducingMultTag u = PZ .>. GetMultTag u
+
+type family GetMultTag (a :: Unit) :: Exp where
+    GetMultTag (Tag (Multiply t) ':*: rest) = t
+    GetMultTag otherwise = PZ
+
+type family DropMultTag (a :: Unit) :: Unit where
+    DropMultTag (Tag (Multiply t) ':*: rest) = rest
+    DropMultTag u = u
 
 type Mult a b = a * b
 type Div a b = a / b
