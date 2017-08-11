@@ -3,13 +3,17 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE FlexibleContexts #-}
+
 module Numeric.Units.SI.Internal.Numerals(Exp, Boolean(..), If, ComputeIrreducible, Negate,
-    PZ,
+    PZ, Strip, toInt,
     P1, P2, P3, P4, P5, P6, P7, P8, P9,
     M1, M2, M3, M4, M5, M6, M7, M8, M9,
     type(%), type(.+.), type(.*.), type(.-.), type(.>.)) where
 
 import Numeric.Units.SI.Internal.Boolean
+import Numeric.Units.SI.Internal.Ternary
 
 type M9 = (Opp TN9) ':%: TN1
 type M8 = (Opp TN8) ':%: TN1
@@ -42,9 +46,11 @@ infixl 7 %, .*.
 infixl 6 .+., .-.
 infix  4 .>.
 
+type family Strip (a :: Exp) :: Ternary where
+    Strip (a ':%: b) = a
+
 type family (%) (x :: Exp) (y :: Exp) :: Exp where
     (%) x (y1 ':%: y2) = x .*. (y2 ':%: y1)
-
 
 type family (.+.) (x :: Exp) (y :: Exp) :: Exp where
     (.+.) (x1 ':%: x2) (y1 ':%: y2) = CheckZero (ComputeIrreducible (((x1 * y2) + (x2 * y1)) ':%: (x2 * y2)))
@@ -91,12 +97,6 @@ type TN6 = TN5 + TN1
 type TN7 = TN6 + TN1
 type TN8 = TN7 + TN1
 type TN9 = TN8 + TN1
-
-data Ternary where
-    TBot :: Ternary
-    TZ :: Ternary -> Ternary
-    T1 :: Ternary -> Ternary
-    TJ :: Ternary -> Ternary
 
 type family Opp (a :: Ternary) :: Ternary where
     Opp 'TBot = 'TBot
@@ -203,3 +203,14 @@ type family FI (x :: Ternary) (y :: Ternary) :: Ternary where
     FI ('TJ x) ('TZ y) = FI ('TJ x) y
     FI ('TJ x) ('T1 y) = 'TZ (FI (x + Min' (Opp x) y) ('T1 y)) + FI (Min ('TJ x) ('TJ (Opp y))) (x + y)
     FI ('TJ x) ('TJ y) = 'TZ (FI (x - Min'' x y) ('TJ y)) + FI (Min ('TJ x) ('TJ y)) (x - y)
+
+{-# INLINE toInt #-}
+toInt :: forall (tr :: Ternary). Sing tr -> Int
+toInt n = go 0 1 n
+  where
+    go :: forall (tr' :: Ternary). Int -> Int -> Sing tr' -> Int
+    go res base s = case s of
+      STBot -> res
+      STZ rest -> go res (base*3) rest
+      ST1 rest -> go (res + base) (base*3) rest
+      STJ rest -> go (res - base) (base*3) rest

@@ -2,13 +2,15 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE KindSignatures #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE FlexibleContexts #-}
 module Numeric.Units.SI(
       module Numeric.Units.SI.Base
     , module Numeric.Units.SI.Derived
@@ -28,6 +30,8 @@ module Numeric.Units.SI(
 
     , sum, product ) where
 
+
+import Data.Singletons
 import Control.DeepSeq
 import GHC.Generics (Generic)
 import qualified Prelude as P
@@ -51,17 +55,110 @@ instance P.Functor (SI a) where
 infixl 7 *, /
 infixl 6 +, -
 
-(*) :: P.Num b => SI a1 b -> SI a2 b -> SI (Mult a1 a2) b
-(*) (SI l) (SI r) = SI (l P.* r)
 
-(/) :: P.Fractional b => SI a1 b -> SI a2 b -> SI (Div a1 a2) b
-(/) (SI l) (SI r) = SI (l P./ r)
+data ModifyingTagType where
+    None :: ModifyingTagType
+    Submultiple :: ModifyingTagType
+    Multiple :: ModifyingTagType
 
-(+) :: P.Num b => SI a b -> SI a b -> SI a b
-(+) (SI l) (SI r) = SI (l P.+ r)
+type family HasModifyingTag (a :: Unit) :: ModifyingTagType where
+    HasModifyingTag u = If (HasMultTag u)
+        (If (HasReducingMultTag u) 'Submultiple 'Multiple) 'None
 
-(-) :: P.Num b => SI a b -> SI a b -> SI a b
-(-) (SI l) (SI r) = SI (l P.- r)
+type family SelectMode (a :: ModifyingTagType) (b :: ModifyingTagType) :: ModifyingTagType where
+    SelectMode 'Submultiple b = 'Submultiple
+    SelectMode a 'Submultiple = 'Submultiple
+    SelectMode 'Multiple 'None = 'Multiple
+    SelectMode 'None 'Multiple = 'Multiple
+    SelectMode 'None 'None = 'None
+
+type family TresM (r :: ModifyingTagType) (a1 :: Unit) (a2 :: Unit) :: Unit where
+    TresM 'None a1 a2 = (a1 * a2)
+    TresM r a1 a2 = DropMultTag (a1 * a2)
+
+type family TresD (r :: ModifyingTagType) (a1 :: Unit) (a2 :: Unit) :: Unit where
+    TresD 'None a1 a2 = (a1 / a2)
+    TresD r a1 a2 = DropMultTag (a1 / a2)
+
+type family TresS (r :: ModifyingTagType) (a1 :: Unit) :: Unit where
+    TresS 'None a1 = a1
+    TresS r a1 = DropMultTag a1
+
+type Ttag (a :: Unit) = Strip (GetMultTag a)
+type ReduxS (a1 :: Unit) (a2 :: Unit) = HasModifyingTag a1 `SelectMode` HasModifyingTag a2
+
+class SINum (a1 :: Unit) (a2 :: Unit) b (c :: ModifyingTagType) where
+    (*) :: (c ~ HasModifyingTag (a1 * a2)
+         , SingI (Ttag (a1 * a2))) =>
+        SI a1 b -> SI a2 b -> SI (TresM c a1 a2) b
+
+    (+) :: (c ~ ReduxS a1 a2
+         , (TresS c a1) ~ (TresS c a2)
+         , SingI (Ttag a1)
+         , SingI (Ttag a2)) =>
+        SI a1 b -> SI a2 b -> SI (TresS c a1) b
+
+    (-) :: (c ~ ReduxS a1 a2
+         , (TresS c a1) ~ (TresS c a2)
+         , SingI (Ttag a1)
+         , SingI (Ttag a2)) =>
+        SI a1 b -> SI a2 b -> SI (TresS c a1) b
+
+instance P.Fractional b => SINum a1 a2 b 'Submultiple where
+    (*) (SI l) (SI r) = SI (l P.* r P.* proxy)
+      where
+        proxy = 10 P.^^ toInt (sing :: Sing (Strip (GetMultTag (a1 * a2))))
+    (+) (SI l) (SI r) = SI (l P.* proxyL P.+ r P.* proxyR)
+      where
+        proxyL = 10 P.^^ toInt (sing :: Sing (Strip (GetMultTag (a1))))
+        proxyR = 10 P.^^ toInt (sing :: Sing (Strip (GetMultTag (a2))))
+    (-) (SI l) (SI r) = SI (l P.* proxyL P.- r P.* proxyR)
+      where
+        proxyL = 10 P.^^ toInt (sing :: Sing (Strip (GetMultTag (a1))))
+        proxyR = 10 P.^^ toInt (sing :: Sing (Strip (GetMultTag (a2))))
+
+instance P.Num b => SINum a1 a2 b 'Multiple where
+    (*) (SI l) (SI r) = SI (l P.* r P.* proxy)
+      where
+        proxy = 10 P.^ toInt (sing :: Sing (Strip (GetMultTag (a1 * a2))))
+    (+) (SI l) (SI r) = SI (l P.* proxyL P.+ r P.* proxyR)
+      where
+        proxyL = 10 P.^ toInt (sing :: Sing (Strip (GetMultTag (a1))))
+        proxyR = 10 P.^ toInt (sing :: Sing (Strip (GetMultTag (a2))))
+    (-) (SI l) (SI r) = SI (l P.* proxyL P.- r P.* proxyR)
+      where
+        proxyL = 10 P.^ toInt (sing :: Sing (Strip (GetMultTag (a1))))
+        proxyR = 10 P.^ toInt (sing :: Sing (Strip (GetMultTag (a2))))
+
+instance P.Num b => SINum a1 a2 b 'None where
+    (*) (SI l) (SI r) = SI (l P.* r)
+    (+) (SI l) (SI r) = SI (l P.+ r)
+    (-) (SI l) (SI r) = SI (l P.- r)
+
+
+class P.Fractional b => SIFractional (a1 :: Unit) (a2 :: Unit) b (c :: ModifyingTagType) where
+    (/) :: (c ~ HasModifyingTag (a1 / a2)
+         , SingI (Ttag (a1 / a2))) =>
+        SI a1 b -> SI a2 b -> SI (TresD c a1 a2) b
+
+instance P.Fractional b => SIFractional a1 a2 b 'Submultiple where
+    (/) (SI l) (SI r) = SI (l P./ r P.* proxy)
+      where
+        proxy = 10 P.^^ toInt (sing :: Sing (Strip (GetMultTag (a1 / a2))))
+
+instance P.Fractional b => SIFractional a1 a2 b 'Multiple where
+    (/) (SI l) (SI r) = SI (l P./ r P.* proxy)
+      where
+        proxy = 10 P.^^ toInt (sing :: Sing (Strip (GetMultTag (a1 / a2))))
+
+instance P.Fractional b => SIFractional a1 a2 b 'None where
+    (/) (SI l) (SI r) = SI (l P./ r)
+
+deTag :: forall a b. (P.Num b, SingI (Strip (GetMultTag a))) =>
+    SI a b -> SI (DropMultTag a) b
+deTag (SI l) = SI (l P.* proxy)
+  where
+    proxy = 10 P.^ toInt (sing :: Sing (Strip (GetMultTag (a))))
 
 -- Floating
 pi :: P.Floating b => SI I b
@@ -124,8 +221,9 @@ m9 = Power (-9); m9 :: Power 'BF P9
 (^) :: P.Fractional b => SI a b -> Power p e -> SI (If p (a ^ e) (I / a ^ e)) b
 (^) (SI b) (Power n) = SI (b P.^^ n)
 
-sum :: forall t a b. (P.Num b, P.Foldable t) => t (SI a b) -> SI a b
-sum = P.foldr (+) (SI 0 :: SI a b)
+sum :: forall t a b. (P.Num b, P.Foldable t, HasModifyingTag a ~ 'None, SingI (Ttag a)) =>
+    t (SI a b) -> SI a b
+sum = P.foldr1 (+)
 
 product :: forall t b. (P.Num b, P.Foldable t) => t (SI I b) -> SI I b
 product = P.foldr (*) (SI 1 :: SI I b)
