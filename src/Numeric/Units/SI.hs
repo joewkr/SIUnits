@@ -154,6 +154,44 @@ instance P.Fractional b => SIFractional a1 a2 b 'Multiple where
 instance P.Fractional b => SIFractional a1 a2 b 'None where
     (/) (SI l) (SI r) = SI (l P./ r)
 
+type ExpResType (p :: Boolean) (a :: Unit) (e :: Exp) = If p (a ^ e) (I / a ^ e)
+class P.Fractional b => SIExp (a :: Unit) (p :: Boolean) (e :: Exp) b (c :: ModifyingTagType) where
+    (^) :: (c ~ HasModifyingTag (ExpResType p a e)
+         , SingI (Ttag (ExpResType p a e))) =>
+        SI a b -> Power p e -> SI (TresS c (ExpResType p a e)) b
+
+instance P.Fractional b =>SIExp a p e b 'Submultiple where
+    (^) (SI b) (Power n) = SI (b P.^^ n P.* proxy)
+      where
+        proxy = 10 P.^^ toInt (sing :: Sing (Strip (GetMultTag (ExpResType p a e))))
+
+instance P.Fractional b =>SIExp a p e b 'Multiple where
+    (^) (SI b) (Power n) = SI (b P.^^ n P.* proxy)
+      where
+        proxy = 10 P.^^ toInt (sing :: Sing (Strip (GetMultTag (ExpResType p a e))))
+
+instance P.Fractional b =>SIExp a p e b 'None where
+    (^) (SI b) (Power n) = SI (b P.^^ n)
+
+class P.Floating b => SISqrt (a :: Unit) b (c :: ModifyingTagType) where
+    sqrt :: (c ~ HasModifyingTag (a ^ (P1 % P2))
+         , SingI (Ttag a)) =>
+        SI a b -> SI (TresS c (a ^ (P1 % P2))) b
+
+instance P.Floating b =>SISqrt a b 'Submultiple where
+    sqrt (SI b) = SI (P.sqrt P.$! b P.* proxy)
+      where
+        proxy = 10 P.^^ toInt (sing :: Sing (Strip (GetMultTag a)))
+
+instance P.Floating b =>SISqrt a b 'Multiple where
+    sqrt (SI b) = SI (P.sqrt P.$! b P.* proxy)
+      where
+        proxy = 10 P.^^ toInt (sing :: Sing (Strip (GetMultTag a)))
+
+instance P.Floating b =>SISqrt a b 'None where
+    sqrt (SI b) = SI (P.sqrt b)
+
+
 deTag :: forall a b. (P.Num b, SingI (Strip (GetMultTag a))) =>
     SI a b -> SI (DropMultTag a) b
 deTag (SI l) = SI (l P.* proxy)
@@ -183,9 +221,6 @@ atanh = P.fmap P.atanh
 
 tan = P.fmap P.tan
 tanh = P.fmap P.tanh
-
-sqrt :: P.Floating b => SI a b -> SI (a ^ (P1 % P2)) b
-sqrt (SI b) = SI (P.sqrt b)
 
 infixr 8 **, ^^, ^
 
@@ -217,9 +252,6 @@ m6 = Power (-6); m6 :: Power 'BF P6
 m7 = Power (-7); m7 :: Power 'BF P7
 m8 = Power (-8); m8 :: Power 'BF P8
 m9 = Power (-9); m9 :: Power 'BF P9
-
-(^) :: P.Fractional b => SI a b -> Power p e -> SI (If p (a ^ e) (I / a ^ e)) b
-(^) (SI b) (Power n) = SI (b P.^^ n)
 
 sum :: forall t a b. (P.Num b, P.Foldable t, HasModifyingTag a ~ 'None, SingI (Ttag a)) =>
     t (SI a b) -> SI a b
