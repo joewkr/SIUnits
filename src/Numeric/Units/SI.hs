@@ -15,6 +15,7 @@ module Numeric.Units.SI(
       module Numeric.Units.SI.Base
     , module Numeric.Units.SI.Derived
     , module Numeric.Units.SI.Internal.Numerals
+    , module Numeric.Units.SI.Tags.Multiply.Prefixes
     , SI(..)
     , (*), (/), (+), (-)
     , (**), (^^)
@@ -39,6 +40,7 @@ import qualified Prelude as P
 import Numeric.Units.SI.Base
 import Numeric.Units.SI.Derived
 import Numeric.Units.SI.Internal.Numerals
+import Numeric.Units.SI.Tags.Multiply.Prefixes
 
 newtype SI (a :: Unit) b where
     SI :: {unSI :: b} -> SI a b deriving Generic
