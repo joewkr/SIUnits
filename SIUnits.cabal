@@ -49,3 +49,13 @@ test-suite test-compile
                      , filepath >= 1.4
   default-language:    Haskell2010
   ghc-options:         -package ghc -Wall -O2
+
+test-suite test-runtime
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      tests
+  main-is:             TryRun.hs
+  build-depends:       base
+                     , hspec >= 2.4
+                     , SIUnits
+  default-language:    Haskell2010
+  ghc-options:         -package ghc -Wall -O2
