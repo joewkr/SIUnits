@@ -120,8 +120,8 @@ tryCompileG pkgs logAction = compile >=> toBool
         runGhc (Just libdir) $ do
             dflags <- getSessionDynFlags
             let dflags' = dflags{
-                  ghcLink = LinkInMemory
-                , hscTarget = HscInterpreted
+                  ghcLink = NoLink
+                , hscTarget = HscNothing
                 , extraPkgConfs = (++) (map PkgConfFile pkgs)
                 , includePaths = ["src/"] ++ includePaths dflags
                 , importPaths = ["src/"] ++ importPaths dflags
