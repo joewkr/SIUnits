@@ -180,17 +180,17 @@ class P.Floating b => SISqrt (a :: Unit) b (c :: ModifyingTagType) where
          , SingI (Ttag a)) =>
         SI a b -> SI (TresS c (a ^ (P1 % P2))) b
 
-instance P.Floating b =>SISqrt a b 'Submultiple where
+instance P.Floating b => SISqrt a b 'Submultiple where
     sqrt (SI b) = SI (P.sqrt P.$! b P.* proxy)
       where
         proxy = 10 P.^^ toInt (sing :: Sing (Strip (GetMultTag a)))
 
-instance P.Floating b =>SISqrt a b 'Multiple where
+instance P.Floating b => SISqrt a b 'Multiple where
     sqrt (SI b) = SI (P.sqrt P.$! b P.* proxy)
       where
         proxy = 10 P.^^ toInt (sing :: Sing (Strip (GetMultTag a)))
 
-instance P.Floating b =>SISqrt a b 'None where
+instance P.Floating b => SISqrt a b 'None where
     sqrt (SI b) = SI (P.sqrt b)
 
 
