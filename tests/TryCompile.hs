@@ -1,15 +1,72 @@
+{-# LANGUAGE CPP #-}
 module Main where
 
-import Control.Monad ((>=>))
+import Control.Applicative ((<$>))
+import Control.Monad ((>=>), filterM, mapM_)
+import Data.List (isSuffixOf, isInfixOf)
 import DynFlags
+import Packages
 import GHC
 import GHC.Paths ( libdir )
 import Test.Hspec
 
-data ResultExpectation = Good | Bad
+import Control.Monad.IO.Class
+import System.Directory
+import System.FilePath
+
+ghcVersion :: String
+ghcVersion = major ++ "." ++ minor ++ "." ++ patch1
+#ifdef __GLASGOW_HASKELL_PATCHLEVEL2__
+    ++ "." ++ patch2
+#endif
+  where
+    versionMajor :: Int
+    versionMajor = __GLASGOW_HASKELL__
+
+    patchLevel1 :: Int
+    patchLevel1 = __GLASGOW_HASKELL_PATCHLEVEL1__
+
+    major :: String
+    major = show $! versionMajor `div` 100
+
+    minor = show $! versionMajor `mod` 100
+
+    patch1 :: String
+    patch1 = show $! patchLevel1
+
+#ifdef __GLASGOW_HASKELL_PATCHLEVEL2__
+    patchLevel2 :: Int
+    patchLevel2 = __GLASGOW_HASKELL_PATCHLEVEL2__
+
+    patch2 :: String
+    patch2 = show $! patchLevel2
+#endif
+
+getSandboxPackageDb :: IO (Maybe [FilePath])
+getSandboxPackageDb = do
+    pwd <- getCurrentDirectory
+    hasSandbox <- doesDirectoryExist $ pwd </> ".cabal-sandbox"
+    pkgs <- case hasSandbox of
+        False -> return Nothing
+        True -> do
+            let sandboxDir = pwd </> ".cabal-sandbox"
+                normalize = map (sandboxDir </>)
+            contents <- (normalize <$> listDirectory sandboxDir) >>= filterM doesDirectoryExist
+            return . Just . filter (isInfixOf ghcVersion) $! filter (isSuffixOf "packages.conf.d") contents
+    case pkgs of
+        Just ps -> do
+            putStrLn "using package database:"
+            mapM_ putStrLn ps
+        Nothing -> putStrLn "using default package database"
+    return $! pkgs
 
 main :: IO ()
-main = hspec $ do
+main = getSandboxPackageDb >>= runTests
+
+data ResultExpectation = Good | Bad
+
+runTests :: Maybe [FilePath] -> IO ()
+runTests pkgs = hspec $ do
     describe "Compile-time behaviour: correct samples" $ do
         it "compiles multiplication" $ do
             tryCompile Good "tests/Multiply.hs" `shouldReturn` True
@@ -36,6 +93,10 @@ main = hspec $ do
             tryCompile Bad "tests/MalformedSum.hs" `shouldReturn` False
         it "rejects sum of mixture of raw and dimensional entities" $ do
             tryCompile Bad "tests/MixedSum.hs" `shouldReturn` False
+  where
+    tryCompile = case pkgs of
+        Just ps -> tryCompileWithPkg ps
+        Nothing -> tryCompileWithPkg []
 
 -- We are not interested in the actual text of compile errors, just
 -- in ghc's return code.
@@ -45,12 +106,12 @@ messager _ = return ()
 silentLogAction :: LogAction
 silentLogAction _ _ _ _ _ _ = return ()
 
-tryCompile :: ResultExpectation -> String -> IO Bool
-tryCompile Good = tryCompileG defaultLogAction
-tryCompile Bad = tryCompileG silentLogAction
+tryCompileWithPkg :: [FilePath] -> ResultExpectation -> String -> IO Bool
+tryCompileWithPkg pkgs Good = tryCompileG pkgs defaultLogAction
+tryCompileWithPkg pkgs Bad = tryCompileG pkgs silentLogAction
 
-tryCompileG :: LogAction -> String -> IO Bool
-tryCompileG logAction = compile >=> toBool
+tryCompileG :: [FilePath] -> LogAction -> String -> IO Bool
+tryCompileG pkgs logAction = compile >=> toBool
   where
     toBool Succeeded = return True
     toBool Failed = return False
@@ -58,13 +119,16 @@ tryCompileG logAction = compile >=> toBool
     compile test = defaultErrorHandler messager defaultFlushOut $ do
         runGhc (Just libdir) $ do
             dflags <- getSessionDynFlags
-            setSessionDynFlags (dflags{
+            let dflags' = dflags{
                   ghcLink = LinkInMemory
                 , hscTarget = HscInterpreted
+                , extraPkgConfs = (++) (map PkgConfFile pkgs)
                 , includePaths = ["src/"] ++ includePaths dflags
                 , importPaths = ["src/"] ++ importPaths dflags
                 , log_action = logAction
-                })
+                }
+            (dflags'', _) <- liftIO $! initPackages dflags'
+            setSessionDynFlags dflags''
             target <- guessTarget test Nothing
             setTargets [target]
             r <- load LoadAllTargets
