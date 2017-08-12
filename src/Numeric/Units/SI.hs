@@ -29,8 +29,9 @@ module Numeric.Units.SI(
     , p9, p8, p7, p6, p5, p4, p3, p2, p1
     , m9, m8, m7, m6, m5, m4, m3, m2, m1
 
-    , sum, product ) where
+    , deTag
 
+    , sum, product ) where
 
 import Data.Singletons
 import Control.DeepSeq
@@ -193,12 +194,23 @@ instance P.Floating b => SISqrt a b 'Multiple where
 instance P.Floating b => SISqrt a b 'None where
     sqrt (SI b) = SI (P.sqrt b)
 
+class SIdeTaggable (a :: Unit) b (c :: ModifyingTagType) where
+    deTag :: (c ~ HasModifyingTag a
+           , SingI (Ttag a)) =>
+        SI a b -> SI (TresS c a) b
 
-deTag :: forall a b. (P.Num b, SingI (Strip (GetMultTag a))) =>
-    SI a b -> SI (DropMultTag a) b
-deTag (SI l) = SI (l P.* proxy)
-  where
-    proxy = 10 P.^ toInt (sing :: Sing (Strip (GetMultTag (a))))
+instance P.Floating b => SIdeTaggable a b 'Submultiple where
+    deTag (SI b) = SI (b P.* proxy)
+      where
+        proxy = 10 P.^^ toInt (sing :: Sing (Strip (GetMultTag a)))
+
+instance P.Num b => SIdeTaggable a b 'Multiple where
+    deTag (SI b) = SI (b P.* proxy)
+      where
+        proxy = 10 P.^ toInt (sing :: Sing (Strip (GetMultTag a)))
+
+instance SIdeTaggable a b 'None where
+    deTag = P.id
 
 -- Floating
 pi :: P.Floating b => SI I b
