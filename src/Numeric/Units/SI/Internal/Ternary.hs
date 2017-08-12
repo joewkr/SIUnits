@@ -6,7 +6,6 @@
 module Numeric.Units.SI.Internal.Ternary where
 
 import Data.Singletons.TH hiding (If, Min)
-import Data.Singletons()
 
 $(singletons [d|
   data Ternary where
