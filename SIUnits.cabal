@@ -17,22 +17,32 @@ library
                      , Numeric.Units.SI.Base
                      , Numeric.Units.SI.Derived
   other-modules:       Numeric.Units.SI.Internal.Numerals
+                     , Numeric.Units.SI.Internal.Ternary
                      , Numeric.Units.SI.Internal.Boolean
+                     , Numeric.Units.SI.Tags.Multiply.Prefixes
   ghc-options:         -Wall -O2
   other-extensions:    DataKinds
+                     , DeriveGeneric
+                     , FlexibleContexts
+                     , FlexibleInstances
                      , GADTs
                      , KindSignatures
                      , MultiParamTypeClasses
                      , NoImplicitPrelude
                      , PolyKinds
+                     , RankNTypes
                      , ScopedTypeVariables
                      , StandaloneDeriving
+                     , TemplateHaskell
                      , TypeFamilies
+                     , TypeInType
                      , TypeOperators
                      , UndecidableInstances
 
   build-depends:       base >=4.9 && <4.11
                      , deepseq >= 1.3
+                     , template-haskell >= 2.11
+                     , singletons >= 2.2
 
   hs-source-dirs:      src
 
