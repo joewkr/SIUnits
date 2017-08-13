@@ -5,12 +5,14 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
 module Numeric.Units.SI.Base(Unit,
-    Kg, M, S, A, K, Mol, Cd, I,
+    Kg, Gram, M, S, A, K, Mol, Cd, I,
     MultiplyExp, HasMultTag, GetMultTag, DropMultTag, HasReducingMultTag,
     Mult, NormalForm, Div, type(*), type(/), type(^)) where
 
 import Numeric.Units.SI.Internal.Numerals
 import Numeric.Units.SI.Internal.Boolean
+
+import GHC.TypeLits (TypeError, ErrorMessage(Text))
 
 type Kg = 'Kg_
 type M = 'M_
@@ -20,6 +22,8 @@ type K = 'K_
 type Mol = 'Mol_
 type Cd = 'Cd_
 type I = 'I_
+
+type Gram = 'Kg_ ':*: 'Tag ('Multiply M3)
 
 data Unit where
     Kg_ :: Unit -- kilogram
@@ -38,7 +42,18 @@ data Unit where
 data TagType where
     Multiply :: Exp -> TagType
 
-type MultiplyExp e u = 'Tag ('Multiply e) ':*: u
+--type MultiplyExp e u = 'Tag ('Multiply e) ':*: u
+
+type family MultiplyExp (e :: Exp) (u :: Unit) where
+    MultiplyExp e ('Tag ('Multiply t) ':*: rest) =
+        TypeError ('Text "SI prefix cannot be repeated")
+    MultiplyExp e (Kg) =
+        TypeError ('Text "SI prefix cannot be applied to Kg unit")
+    MultiplyExp e (Kg ':^: p) =
+        TypeError ('Text "SI prefix cannot be applied to Kg unit")
+    MultiplyExp e u = NormalForm ('Tag ('Multiply e) ':*: u)
+
+
 type MultiplyZero = 'Multiply PZ
 
 type family (*) (a :: Unit) (b :: Unit) :: Unit where
