@@ -1,5 +1,5 @@
 name:                SIUnits
-version:             0.1.0.0
+version:             0.1.1.0
 synopsis:            A lightweight library to handle units of measure on type-level
 description:
 license:             BSD3
