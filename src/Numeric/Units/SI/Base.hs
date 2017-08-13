@@ -169,18 +169,18 @@ type family PropagateOuterPower (a :: Unit) :: Unit where
 type NormalForm (a :: Unit) = Simplify (Normalize (Group (Split (PropagateOuterPower a))))
 
 type family HasMultTag (a :: Unit) :: Boolean where
-    HasMultTag (Tag (Multiply t) ':*: rest) = 'BT
+    HasMultTag ('Tag ('Multiply t) ':*: rest) = 'BT
     HasMultTag otherwise = 'BF
 
 type family HasReducingMultTag (a :: Unit) :: Boolean where
     HasReducingMultTag u = PZ .>. GetMultTag u
 
 type family GetMultTag (a :: Unit) :: Exp where
-    GetMultTag (Tag (Multiply t) ':*: rest) = t
+    GetMultTag ('Tag ('Multiply t) ':*: rest) = t
     GetMultTag otherwise = PZ
 
 type family DropMultTag (a :: Unit) :: Unit where
-    DropMultTag (Tag (Multiply t) ':*: rest) = rest
+    DropMultTag ('Tag ('Multiply t) ':*: rest) = rest
     DropMultTag u = u
 
 type Mult a b = a * b
