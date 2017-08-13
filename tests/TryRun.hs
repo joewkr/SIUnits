@@ -3,7 +3,7 @@
 {-# LANGUAGE TypeOperators #-}
 module Main(main) where
 
-import Prelude hiding ((*))
+import Prelude hiding ((*), (+), (-))
 import Test.Hspec
 
 import Numeric.Units.SI
@@ -62,3 +62,10 @@ main = hspec $ do
         it "resolves Yocto" $ do
             ((SI 1 :: SI (Yotta M) Int) *
              (SI 1 :: SI (Yocto M) Int)) `shouldBe` (SI 1 :: SI (M ^ P2) Int)
+    describe "Operations with tagged quantities" $ do
+        it "resolves sum" $ do
+            ((SI 1 :: SI (Kilo M) Int) +
+             (SI 1 :: SI (Deca M) Int)) `shouldBe` (SI 1010 :: SI M Int)
+        it "resolves difference" $ do
+            ((SI 1 :: SI (Kilo M) Int) -
+             (SI 1 :: SI (Deca M) Int)) `shouldBe` (SI 990 :: SI M Int)

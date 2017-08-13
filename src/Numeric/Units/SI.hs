@@ -73,7 +73,7 @@ type family SelectMode (a :: ModifyingTagType) (b :: ModifyingTagType) :: Modify
     SelectMode a 'Submultiple = 'Submultiple
     SelectMode 'Multiple 'None = 'Multiple
     SelectMode 'None 'Multiple = 'Multiple
-    SelectMode 'None 'None = 'None
+    SelectMode a a = a
 
 type family TresM (r :: ModifyingTagType) (a1 :: Unit) (a2 :: Unit) :: Unit where
     TresM 'None a1 a2 = (a1 * a2)
