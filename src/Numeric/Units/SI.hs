@@ -108,34 +108,43 @@ class SINum (a1 :: Unit) (a2 :: Unit) b (c :: ModifyingTagType) where
         SI a1 b -> SI a2 b -> SI (TresS c a1) b
 
 instance P.Fractional b => SINum a1 a2 b 'Submultiple where
+    {-# INLINE (*) #-}
     (*) (SI l) (SI r) = SI (l P.* r P.* proxy)
       where
         proxy = 10 P.^^ toInt (sing :: Sing (Strip (GetMultTag (a1 * a2))))
+    {-# INLINE (+) #-}
     (+) (SI l) (SI r) = SI (l P.* proxyL P.+ r P.* proxyR)
       where
         proxyL = 10 P.^^ toInt (sing :: Sing (Strip (GetMultTag (a1))))
         proxyR = 10 P.^^ toInt (sing :: Sing (Strip (GetMultTag (a2))))
+    {-# INLINE (-) #-}
     (-) (SI l) (SI r) = SI (l P.* proxyL P.- r P.* proxyR)
       where
         proxyL = 10 P.^^ toInt (sing :: Sing (Strip (GetMultTag (a1))))
         proxyR = 10 P.^^ toInt (sing :: Sing (Strip (GetMultTag (a2))))
 
 instance P.Num b => SINum a1 a2 b 'Multiple where
+    {-# INLINE (*) #-}
     (*) (SI l) (SI r) = SI (l P.* r P.* proxy)
       where
         proxy = 10 P.^ toInt (sing :: Sing (Strip (GetMultTag (a1 * a2))))
+    {-# INLINE (+) #-}
     (+) (SI l) (SI r) = SI (l P.* proxyL P.+ r P.* proxyR)
       where
         proxyL = 10 P.^ toInt (sing :: Sing (Strip (GetMultTag (a1))))
         proxyR = 10 P.^ toInt (sing :: Sing (Strip (GetMultTag (a2))))
+    {-# INLINE (-) #-}
     (-) (SI l) (SI r) = SI (l P.* proxyL P.- r P.* proxyR)
       where
         proxyL = 10 P.^ toInt (sing :: Sing (Strip (GetMultTag (a1))))
         proxyR = 10 P.^ toInt (sing :: Sing (Strip (GetMultTag (a2))))
 
 instance P.Num b => SINum a1 a2 b 'None where
+    {-# INLINE (*) #-}
     (*) (SI l) (SI r) = SI (l P.* r)
+    {-# INLINE (+) #-}
     (+) (SI l) (SI r) = SI (l P.+ r)
+    {-# INLINE (-) #-}
     (-) (SI l) (SI r) = SI (l P.- r)
 
 
@@ -145,16 +154,19 @@ class P.Fractional b => SIFractional (a1 :: Unit) (a2 :: Unit) b (c :: Modifying
         SI a1 b -> SI a2 b -> SI (TresD c a1 a2) b
 
 instance P.Fractional b => SIFractional a1 a2 b 'Submultiple where
+    {-# INLINE (/) #-}
     (/) (SI l) (SI r) = SI (l P./ r P.* proxy)
       where
         proxy = 10 P.^^ toInt (sing :: Sing (Strip (GetMultTag (a1 / a2))))
 
 instance P.Fractional b => SIFractional a1 a2 b 'Multiple where
+    {-# INLINE (/) #-}
     (/) (SI l) (SI r) = SI (l P./ r P.* proxy)
       where
         proxy = 10 P.^^ toInt (sing :: Sing (Strip (GetMultTag (a1 / a2))))
 
 instance P.Fractional b => SIFractional a1 a2 b 'None where
+    {-# INLINE (/) #-}
     (/) (SI l) (SI r) = SI (l P./ r)
 
 type ExpResType (p :: Boolean) (a :: Unit) (e :: Exp) = If p (a ^ e) (I / a ^ e)
@@ -164,16 +176,19 @@ class P.Fractional b => SIExp (a :: Unit) (p :: Boolean) (e :: Exp) b (c :: Modi
         SI a b -> Power p e -> SI (TresS c (ExpResType p a e)) b
 
 instance P.Fractional b =>SIExp a p e b 'Submultiple where
+    {-# INLINE (^) #-}
     (^) (SI b) (Power n) = SI (b P.^^ n P.* proxy)
       where
         proxy = 10 P.^^ toInt (sing :: Sing (Strip (GetMultTag (ExpResType p a e))))
 
 instance P.Fractional b =>SIExp a p e b 'Multiple where
+    {-# INLINE (^) #-}
     (^) (SI b) (Power n) = SI (b P.^^ n P.* proxy)
       where
         proxy = 10 P.^^ toInt (sing :: Sing (Strip (GetMultTag (ExpResType p a e))))
 
 instance P.Fractional b =>SIExp a p e b 'None where
+    {-# INLINE (^) #-}
     (^) (SI b) (Power n) = SI (b P.^^ n)
 
 class P.Floating b => SISqrt (a :: Unit) b (c :: ModifyingTagType) where
@@ -182,16 +197,19 @@ class P.Floating b => SISqrt (a :: Unit) b (c :: ModifyingTagType) where
         SI a b -> SI (TresS c (a ^ (P1 % P2))) b
 
 instance P.Floating b => SISqrt a b 'Submultiple where
+    {-# INLINE sqrt #-}
     sqrt (SI b) = SI (P.sqrt P.$! b P.* proxy)
       where
         proxy = 10 P.^^ toInt (sing :: Sing (Strip (GetMultTag a)))
 
 instance P.Floating b => SISqrt a b 'Multiple where
+    {-# INLINE sqrt #-}
     sqrt (SI b) = SI (P.sqrt P.$! b P.* proxy)
       where
         proxy = 10 P.^^ toInt (sing :: Sing (Strip (GetMultTag a)))
 
 instance P.Floating b => SISqrt a b 'None where
+    {-# INLINE sqrt #-}
     sqrt (SI b) = SI (P.sqrt b)
 
 class SIdeTaggable (a :: Unit) b (c :: ModifyingTagType) where
@@ -200,16 +218,19 @@ class SIdeTaggable (a :: Unit) b (c :: ModifyingTagType) where
         SI a b -> SI (TresS c a) b
 
 instance P.Floating b => SIdeTaggable a b 'Submultiple where
+    {-# INLINE deTag #-}
     deTag (SI b) = SI (b P.* proxy)
       where
         proxy = 10 P.^^ toInt (sing :: Sing (Strip (GetMultTag a)))
 
 instance P.Num b => SIdeTaggable a b 'Multiple where
+    {-# INLINE deTag #-}
     deTag (SI b) = SI (b P.* proxy)
       where
         proxy = 10 P.^ toInt (sing :: Sing (Strip (GetMultTag a)))
 
 instance SIdeTaggable a b 'None where
+    {-# INLINE deTag #-}
     deTag = P.id
 
 -- Floating
