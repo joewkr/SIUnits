@@ -130,7 +130,11 @@ tryCompileG pkgs logAction = compile >=> toBool
             let dflags' = dflags{
                   ghcLink = NoLink
                 , hscTarget = HscNothing
+#if __GLASGOW_HASKELL__ >= 802
+                , packageDBFlags = map (PackageDB . PkgConfFile) pkgs
+#else
                 , extraPkgConfs = (++) (map PkgConfFile pkgs)
+#endif
                 , includePaths = ["src/"] ++ includePaths dflags
                 , importPaths = ["src/"] ++ importPaths dflags
                 , log_action = logAction
