@@ -69,38 +69,38 @@ runTests :: Maybe [FilePath] -> IO ()
 runTests pkgs = hspec $ do
     describe "Compile-time behaviour: correct samples" $ do
         it "compiles multiplication" $ do
-            tryCompile Good "tests/Multiply.hs" `shouldReturn` True
+            tryCompile Good "tests/cases/Multiply.hs" `shouldReturn` True
         it "compiles division" $ do
-            tryCompile Good "tests/Divide.hs" `shouldReturn` True
+            tryCompile Good "tests/cases/Divide.hs" `shouldReturn` True
         it "compiles sum" $ do
-            tryCompile Good "tests/Sum.hs" `shouldReturn` True
+            tryCompile Good "tests/cases/Sum.hs" `shouldReturn` True
         it "compiles difference" $ do
-            tryCompile Good "tests/Diff.hs" `shouldReturn` True
+            tryCompile Good "tests/cases/Diff.hs" `shouldReturn` True
         it "compiles exponentiation" $ do
-            tryCompile Good "tests/Exp.hs" `shouldReturn` True
+            tryCompile Good "tests/cases/Exp.hs" `shouldReturn` True
         it "compiles square roots" $ do
-            tryCompile Good "tests/Sqrt.hs" `shouldReturn` True
+            tryCompile Good "tests/cases/Sqrt.hs" `shouldReturn` True
         it "compiles quantities fractional exponents" $ do
-            tryCompile Good "tests/QuExp.hs" `shouldReturn` True
+            tryCompile Good "tests/cases/QuExp.hs" `shouldReturn` True
         it "compiles sum of tagged and untaged quantities" $ do
-            tryCompile Good "tests/MixedTagSum.hs" `shouldReturn` True
+            tryCompile Good "tests/cases/MixedTagSum.hs" `shouldReturn` True
         it "compiles difference of tagged and untaged quantities" $ do
-            tryCompile Good "tests/MixedTagDiff.hs" `shouldReturn` True
+            tryCompile Good "tests/cases/MixedTagDiff.hs" `shouldReturn` True
         it "compiles multiplication of tagged and untaged quantities" $ do
-            tryCompile Good "tests/MixedTagMultiply.hs" `shouldReturn` True
+            tryCompile Good "tests/cases/MixedTagMultiply.hs" `shouldReturn` True
         it "compiles division of tagged and untaged quantities" $ do
-            tryCompile Good "tests/MixedTagDivide.hs" `shouldReturn` True
+            tryCompile Good "tests/cases/MixedTagDivide.hs" `shouldReturn` True
         it "reduces repetition to exponentiation" $ do
-            tryCompile Good "tests/MultipleRepetitions.hs" `shouldReturn` True
+            tryCompile Good "tests/cases/MultipleRepetitions.hs" `shouldReturn` True
         it "reduces nested exponentiation" $ do
-            tryCompile Good "tests/NestedExp.hs" `shouldReturn` True
+            tryCompile Good "tests/cases/NestedExp.hs" `shouldReturn` True
         it "reduces inner nested exponentiation" $ do
-            tryCompile Good "tests/InnerNestedExp.hs" `shouldReturn` True
+            tryCompile Good "tests/cases/InnerNestedExp.hs" `shouldReturn` True
     describe "Compile-time behaviour: malformed samples" $ do
         it "rejects malformed sum" $ do
-            tryCompile Bad "tests/MalformedSum.hs" `shouldReturn` False
+            tryCompile Bad "tests/cases/MalformedSum.hs" `shouldReturn` False
         it "rejects sum of mixture of raw and dimensional entities" $ do
-            tryCompile Bad "tests/MixedSum.hs" `shouldReturn` False
+            tryCompile Bad "tests/cases/MixedSum.hs" `shouldReturn` False
   where
     tryCompile = case pkgs of
         Just ps -> tryCompileWithPkg ps
