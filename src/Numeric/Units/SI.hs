@@ -17,6 +17,8 @@ module Numeric.Units.SI(
     , module Numeric.Units.SI.Internal.Numerals
     , module Numeric.Units.SI.Tags.Multiply.Prefixes
     , SI(..)
+    , unSI
+
     , (*), (/), (+), (-)
     , (**), (^^)
     , pi
@@ -44,7 +46,7 @@ import Numeric.Units.SI.Internal.Numerals
 import Numeric.Units.SI.Tags.Multiply.Prefixes
 
 newtype SI (a :: Unit) b where
-    SI :: {unSI :: b} -> SI a b deriving Generic
+    SI :: {unSIRaw :: b} -> SI a b deriving Generic
 
 deriving instance P.Eq b => P.Eq (SI a b)
 deriving instance P.Ord b => P.Ord (SI a b)
@@ -216,6 +218,10 @@ class SIdeTaggable (a :: Unit) b (c :: ModifyingTagType) where
     deTag :: (c ~ HasModifyingTag a
            , SingI (Ttag a)) =>
         SI a b -> SI (TresS c a) b
+    unSI :: (c ~ HasModifyingTag a
+           , SingI (Ttag a)) => SI a b -> b
+    {-# INLINE unSI #-}
+    unSI = unSIRaw P.. deTag
 
 instance P.Floating b => SIdeTaggable a b 'Submultiple where
     {-# INLINE deTag #-}

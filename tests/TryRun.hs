@@ -69,3 +69,10 @@ main = hspec $ do
         it "resolves difference" $ do
             ((SI 1 :: SI (Kilo M) Int) -
              (SI 1 :: SI (Deca M) Int)) `shouldBe` (SI 990 :: SI M Int)
+    describe "Converting to primitive types" $ do
+        it "strips unit information without modification" $ do
+            unSIRaw (SI 1 :: SI (Kilo M) Int) `shouldBe` (1 :: Int)
+        it "strips unit information from unscaled value" $ do
+            unSI (SI 1 :: SI M Int) `shouldBe` (1 :: Int)
+        it "strips unit information with scaling" $ do
+            unSI (SI 1 :: SI (Kilo M) Int) `shouldBe` (1000 :: Int)
