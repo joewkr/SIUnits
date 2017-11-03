@@ -1,0 +1,9 @@
+os: linux
+language: haskell
+
+cache:
+  directories:
+    - $HOME/.cabal
+
+ghc:
+  - 8.2
