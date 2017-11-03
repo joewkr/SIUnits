@@ -1,4 +1,5 @@
 # SIUnits
+[![Build Status](https://travis-ci.org/joewkr/SIUnits.svg?branch=master)](https://travis-ci.org/joewkr/SIUnits)
 
 A lightweight library to handle units of measure on type-level.
 
