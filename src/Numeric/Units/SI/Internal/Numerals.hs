@@ -6,7 +6,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE FlexibleContexts #-}
 
-module Numeric.Units.SI.Internal.Numerals(Exp, Boolean(..), If, ComputeIrreducible, Negate,
+module Numeric.Units.SI.Internal.Numerals(Exp, If, ComputeIrreducible, Negate,
     PZ, Strip, toInt,
     P1, P2, P3, P4, P5, P6, P7, P8, P9,
     M1, M2, M3, M4, M5, M6, M7, M8, M9,
@@ -61,7 +61,7 @@ type family (.-.) (x :: Exp) (y :: Exp) :: Exp where
 type family (.*.) (x :: Exp) (y :: Exp) :: Exp where
     (.*.) (x1 ':%: x2) (y1 ':%: y2) = ComputeIrreducible ((x1 * y1) ':%: (x2 * y2))
 
-type family (.>.) (x :: Exp) (y :: Exp) :: Boolean where
+type family (.>.) (x :: Exp) (y :: Exp) :: Bool where
     (.>.) (x1 ':%: x2) (y1 ':%: y2) = (x1 * y2) `Greater` (x2 * y1)
 
 type family CheckZero (a :: Exp) :: Exp where
@@ -83,9 +83,9 @@ type family TStrip (x :: Ternary) :: Ternary where
 
 type Greater (a :: Ternary) (b :: Ternary) = GreaterQ (TReverse (a - b))
 
-type family GreaterQ (x :: Ternary) :: Boolean where
-    GreaterQ ('T1 x) = 'BT
-    GreaterQ x = 'BF
+type family GreaterQ (x :: Ternary) :: Bool where
+    GreaterQ ('T1 x) = 'True
+    GreaterQ x = 'False
 
 type TN0 = 'TZ 'TBot
 type TN1 = 'T1 'TBot

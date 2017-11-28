@@ -121,14 +121,14 @@ type family HandleTags (a :: UnitsSpec) (b :: TagType) (e :: Exp) :: UnitsSpec w
     HandleTags ('US ('Multiply tag) kg m s a k mol cd) ('Multiply factor) exp =
         ('US ('Multiply (tag.+.factor.*.exp)) kg m s a k mol cd)
 
-type Split (a :: Unit) = Unwind (SplitQ 'BF a)
-type family SplitQ (switch :: Boolean) (a :: Unit) :: Gather where
+type Split (a :: Unit) = Unwind (SplitQ 'False a)
+type family SplitQ (switch :: Bool) (a :: Unit) :: Gather where
     SplitQ switch (a ':*: b) = Concat (SplitQ switch a) (SplitQ switch b)
     SplitQ switch (a ':/: b) = Concat (SplitQ switch a) (SplitQ (Not switch) b)
     SplitQ switch a = 'GU (Apply switch a) 'GZ
 
-type family Apply (switch :: Boolean) (a :: Unit) :: Unit where
-    Apply 'BT (a ':^: exp) = a ':^: (Negate exp)
+type family Apply (switch :: Bool) (a :: Unit) :: Unit where
+    Apply 'True (a ':^: exp) = a ':^: (Negate exp)
     Apply switch a = a
 
 type family Normalize (a :: UnitsSpec) :: Unit where
@@ -183,11 +183,11 @@ type family PropagateOuterPower (a :: Unit) :: Unit where
 
 type NormalForm (a :: Unit) = Simplify (Normalize (Group (Split (PropagateOuterPower a))))
 
-type family HasMultTag (a :: Unit) :: Boolean where
-    HasMultTag ('Tag ('Multiply t) ':*: rest) = 'BT
-    HasMultTag otherwise = 'BF
+type family HasMultTag (a :: Unit) :: Bool where
+    HasMultTag ('Tag ('Multiply t) ':*: rest) = 'True
+    HasMultTag otherwise = 'False
 
-type family HasReducingMultTag (a :: Unit) :: Boolean where
+type family HasReducingMultTag (a :: Unit) :: Bool where
     HasReducingMultTag u = PZ .>. GetMultTag u
 
 type family GetMultTag (a :: Unit) :: Exp where
