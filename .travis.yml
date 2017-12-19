@@ -8,3 +8,12 @@ cache:
 
 ghc:
   - 8.2
+
+install:
+  - cabal update
+  - cabal install --only-dependencies --enable-tests
+
+script:
+  - cabal configure --enable-tests
+  - cabal build
+  - cabal test --show-details=direct
