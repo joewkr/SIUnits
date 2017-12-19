@@ -82,13 +82,13 @@ runTests pkgs = hspec $ do
             tryCompile Good "tests/cases/Sqrt.hs" `shouldReturn` True
         it "compiles quantities fractional exponents" $ do
             tryCompile Good "tests/cases/QuExp.hs" `shouldReturn` True
-        it "compiles sum of tagged and untaged quantities" $ do
+        it "compiles sum of tagged and untagged quantities" $ do
             tryCompile Good "tests/cases/MixedTagSum.hs" `shouldReturn` True
-        it "compiles difference of tagged and untaged quantities" $ do
+        it "compiles difference of tagged and untagged quantities" $ do
             tryCompile Good "tests/cases/MixedTagDiff.hs" `shouldReturn` True
-        it "compiles multiplication of tagged and untaged quantities" $ do
+        it "compiles multiplication of tagged and untagged quantities" $ do
             tryCompile Good "tests/cases/MixedTagMultiply.hs" `shouldReturn` True
-        it "compiles division of tagged and untaged quantities" $ do
+        it "compiles division of tagged and untagged quantities" $ do
             tryCompile Good "tests/cases/MixedTagDivide.hs" `shouldReturn` True
         it "reduces repetition to exponentiation" $ do
             tryCompile Good "tests/cases/MultipleRepetitions.hs" `shouldReturn` True
