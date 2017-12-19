@@ -140,7 +140,7 @@ tryCompileG pkgs logAction = compile >=> toBool
                 , log_action = logAction
                 }
             (dflags'', _) <- liftIO $! initPackages dflags'
-            setSessionDynFlags dflags''
+            _ <- setSessionDynFlags dflags''
             target <- guessTarget test Nothing
             setTargets [target]
             r <- load LoadAllTargets
