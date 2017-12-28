@@ -33,7 +33,9 @@ module Numeric.Units.SI(
 
     , deTag
 
-    , sum, product ) where
+    , sum, product
+
+    , u ) where
 
 import Data.Singletons
 import Control.DeepSeq
@@ -61,6 +63,9 @@ instance P.Functor (SI a) where
 infixl 7 *, /
 infixl 6 +, -
 
+{-# INLINE u #-}
+u :: a -> SI I a
+u = SI
 
 data ModifyingTagType where
     None :: ModifyingTagType

@@ -96,6 +96,8 @@ runTests pkgs = hspec $ do
             tryCompile Good "tests/cases/NestedExp.hs" `shouldReturn` True
         it "reduces inner nested exponentiation" $ do
             tryCompile Good "tests/cases/InnerNestedExp.hs" `shouldReturn` True
+        it "converts raw value to dimensionless one" $ do
+            tryCompile Good "tests/cases/DimensionlessConstant.hs" `shouldReturn` True
     describe "Compile-time behaviour: malformed samples" $ do
         it "rejects malformed sum" $ do
             tryCompile Bad "tests/cases/MalformedSum.hs" `shouldReturn` False
