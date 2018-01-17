@@ -53,13 +53,13 @@ type family (%) (x :: Exp) (y :: Exp) :: Exp where
     (%) x (y1 ':%: y2) = x .*. (y2 ':%: y1)
 
 type family (.+.) (x :: Exp) (y :: Exp) :: Exp where
-    (.+.) (x1 ':%: x2) (y1 ':%: y2) = CheckZero (ComputeIrreducible (((x1 * y2) + (x2 * y1)) ':%: (x2 * y2)))
+    (.+.) (x1 ':%: x2) (y1 ':%: y2) = CheckZero (((x1 * y2) + (x2 * y1)) ':%: (x2 * y2))
 
 type family (.-.) (x :: Exp) (y :: Exp) :: Exp where
-    (.-.) (x1 ':%: x2) (y1 ':%: y2) = CheckZero (ComputeIrreducible (((x1 * y2) - (x2 * y1)) ':%: (x2 * y2)))
+    (.-.) (x1 ':%: x2) (y1 ':%: y2) = CheckZero (((x1 * y2) - (x2 * y1)) ':%: (x2 * y2))
 
 type family (.*.) (x :: Exp) (y :: Exp) :: Exp where
-    (.*.) (x1 ':%: x2) (y1 ':%: y2) = ComputeIrreducible ((x1 * y1) ':%: (x2 * y2))
+    (.*.) (x1 ':%: x2) (y1 ':%: y2) = (x1 * y1) ':%: (x2 * y2)
 
 type family (.>.) (x :: Exp) (y :: Exp) :: Bool where
     (.>.) (x1 ':%: x2) (y1 ':%: y2) = (x1 * y2) `Greater` (x2 * y1)

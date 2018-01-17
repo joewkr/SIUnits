@@ -144,7 +144,6 @@ type family Normalize (a :: UnitsSpec) :: Unit where
 
 type family Simplify (a :: Unit) :: Unit where
     Simplify I = I
-    Simplify (a ':^: PZ) = I
 
     Simplify ('Tag MultiplyZero ':*: b) = Simplify b
     Simplify (a ':*: b) = CombineMult (Simplify a) (Simplify b)
@@ -166,8 +165,12 @@ type family CombineDiv (a :: Unit) (b :: Unit) :: Unit where
 
 type family CombineExp (a :: Unit) (b :: Exp) :: Unit where
     CombineExp I e = I
-    CombineExp a P1 = a
-    CombineExp a e = a ':^: e
+    CombineExp a e = CheckReduced a (ComputeIrreducible e)
+
+type family CheckReduced (a :: Unit) (b :: Exp) :: Unit where
+    CheckReduced a P1 = a
+    CheckReduced a PZ = I
+    CheckReduced a e = a ':^: e
 
 type family PutPowers (e :: Exp) (a :: Unit) :: Unit where
     PutPowers e I = I
