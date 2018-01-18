@@ -5,6 +5,7 @@
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE QuasiQuotes #-}
 
 module Numeric.Units.SI.Internal.Numerals(Exp, If, ComputeIrreducible, Negate,
     PZ, Strip, toInt,
@@ -15,27 +16,27 @@ module Numeric.Units.SI.Internal.Numerals(Exp, If, ComputeIrreducible, Negate,
 import Numeric.Units.SI.Internal.Boolean
 import Numeric.Units.SI.Internal.Ternary
 
-type M9 = (Opp TN9) ':%: TN1
-type M8 = (Opp TN8) ':%: TN1
-type M7 = (Opp TN7) ':%: TN1
-type M6 = (Opp TN6) ':%: TN1
-type M5 = (Opp TN5) ':%: TN1
-type M4 = (Opp TN4) ':%: TN1
-type M3 = (Opp TN3) ':%: TN1
-type M2 = (Opp TN2) ':%: TN1
-type M1 = (Opp TN1) ':%: TN1
+type M9 = [ternary|-9|] ':%: TN1
+type M8 = [ternary|-8|] ':%: TN1
+type M7 = [ternary|-7|] ':%: TN1
+type M6 = [ternary|-6|] ':%: TN1
+type M5 = [ternary|-5|] ':%: TN1
+type M4 = [ternary|-4|] ':%: TN1
+type M3 = [ternary|-3|] ':%: TN1
+type M2 = [ternary|-2|] ':%: TN1
+type M1 = [ternary|-1|] ':%: TN1
 
 type PZ = 'TBot ':%: TN1
 
-type P1 = TN1 ':%: TN1
-type P2 = TN2 ':%: TN1
-type P3 = TN3 ':%: TN1
-type P4 = TN4 ':%: TN1
-type P5 = TN5 ':%: TN1
-type P6 = TN6 ':%: TN1
-type P7 = TN7 ':%: TN1
-type P8 = TN8 ':%: TN1
-type P9 = TN9 ':%: TN1
+type P1 = [ternary|1|] ':%: TN1
+type P2 = [ternary|2|] ':%: TN1
+type P3 = [ternary|3|] ':%: TN1
+type P4 = [ternary|4|] ':%: TN1
+type P5 = [ternary|5|] ':%: TN1
+type P6 = [ternary|6|] ':%: TN1
+type P7 = [ternary|7|] ':%: TN1
+type P8 = [ternary|8|] ':%: TN1
+type P9 = [ternary|9|] ':%: TN1
 
 data Exp where
     (:%:) :: Ternary -> Ternary -> Exp

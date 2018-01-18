@@ -130,8 +130,8 @@ tryCompileG pkgs logAction = compile >=> toBool
         runGhc (Just libdir) $ do
             dflags <- getSessionDynFlags
             let dflags' = dflags{
-                  ghcLink = NoLink
-                , hscTarget = HscNothing
+                  ghcLink = LinkInMemory
+                , hscTarget = HscInterpreted
 #if __GLASGOW_HASKELL__ >= 802
                 , packageDBFlags = map (PackageDB . PkgConfFile) pkgs
 #else
