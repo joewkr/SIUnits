@@ -7,18 +7,6 @@ module Numeric.Units.SI.Tags.Multiply.Prefixes(
 import Numeric.Units.SI.Base
 import Numeric.Units.SI.Internal.Numerals
 
-type M24 = M21 .-. P3
-type M21 = M18 .-. P3
-type M18 = M15 .-. P3
-type M15 = M12 .-. P3
-type M12 = M9  .-. P3
-
-type P12 = P9  .+. P3
-type P15 = P12 .+. P3
-type P18 = P15 .+. P3
-type P21 = P18 .+. P3
-type P24 = P21 .+. P3
-
 type Deca u = MultiplyExp P1 u
 type Hecto u = MultiplyExp P2 u
 type Kilo u = MultiplyExp P3 u

@@ -5,7 +5,6 @@ module CompileTest where
 import Numeric.Units.SI
 import Prelude hiding((+))
 
-type P18 = P9 .+. P9
 test :: SI (M ^ P9 / S ^ P18 * Kg) Double
 test = a + b
   where

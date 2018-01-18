@@ -9,12 +9,18 @@
 
 module Numeric.Units.SI.Internal.Numerals(Exp, If, ComputeIrreducible, Negate,
     PZ, Strip, toInt,
-    P1, P2, P3, P4, P5, P6, P7, P8, P9,
-    M1, M2, M3, M4, M5, M6, M7, M8, M9,
+    P1, P2, P3, P4, P5, P6, P7, P8, P9, P12, P15, P18, P21, P24,
+    M1, M2, M3, M4, M5, M6, M7, M8, M9, M12, M15, M18, M21, M24,
     type(%), type(.+.), type(.*.), type(.-.), type(.>.)) where
 
 import Numeric.Units.SI.Internal.Boolean
 import Numeric.Units.SI.Internal.Ternary
+
+type M24 = [ternary|-24|] ':%: TN1
+type M21 = [ternary|-21|] ':%: TN1
+type M18 = [ternary|-18|] ':%: TN1
+type M15 = [ternary|-15|] ':%: TN1
+type M12 = [ternary|-12|] ':%: TN1
 
 type M9 = [ternary|-9|] ':%: TN1
 type M8 = [ternary|-8|] ':%: TN1
@@ -37,6 +43,12 @@ type P6 = [ternary|6|] ':%: TN1
 type P7 = [ternary|7|] ':%: TN1
 type P8 = [ternary|8|] ':%: TN1
 type P9 = [ternary|9|] ':%: TN1
+
+type P12 = [ternary|12|] ':%: TN1
+type P15 = [ternary|15|] ':%: TN1
+type P18 = [ternary|18|] ':%: TN1
+type P21 = [ternary|21|] ':%: TN1
+type P24 = [ternary|24|] ':%: TN1
 
 data Exp where
     (:%:) :: Ternary -> Ternary -> Exp
