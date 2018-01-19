@@ -102,14 +102,6 @@ type family GreaterQ (x :: Ternary) :: Bool where
 
 type TN0 = 'TZ 'TBot
 type TN1 = 'T1 'TBot
-type TN2 = TN1 + TN1
-type TN3 = TN2 + TN1
-type TN4 = TN3 + TN1
-type TN5 = TN4 + TN1
-type TN6 = TN5 + TN1
-type TN7 = TN6 + TN1
-type TN8 = TN7 + TN1
-type TN9 = TN8 + TN1
 
 type family Opp (a :: Ternary) :: Ternary where
     Opp 'TBot = 'TBot
