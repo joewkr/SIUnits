@@ -30,7 +30,7 @@ ternary = QuasiQuoter {
 
 convertToTernary :: String -> Q Type
 convertToTernary str = do
-    let converted = reverseTernary (PromotedT 'TBot) . toTernary TBot . read $ str
+    let converted = buildTernaryTH (PromotedT 'TBot) . toTernary TBot . read $ str
     return converted
 
 toTernary :: Ternary -> Int -> Ternary
@@ -40,8 +40,8 @@ toTernary res num
     | num `mod` 3 ==  1 = toTernary (T1 res) $! (num + 1) `div` 3
     | otherwise = toTernary (TZ res) $! (num + 1) `div` 3
 
-reverseTernary :: Type -> Ternary -> Type
-reverseTernary res TBot = res
-reverseTernary res (TJ rest) = reverseTernary (AppT (PromotedT 'TJ) res) rest
-reverseTernary res (T1 rest) = reverseTernary (AppT (PromotedT 'T1) res) rest
-reverseTernary res (TZ rest) = reverseTernary (AppT (PromotedT 'TZ) res) rest
+buildTernaryTH :: Type -> Ternary -> Type
+buildTernaryTH res TBot = res
+buildTernaryTH res (TJ rest) = buildTernaryTH (AppT (PromotedT 'TJ) res) rest
+buildTernaryTH res (T1 rest) = buildTernaryTH (AppT (PromotedT 'T1) res) rest
+buildTernaryTH res (TZ rest) = buildTernaryTH (AppT (PromotedT 'TZ) res) rest
