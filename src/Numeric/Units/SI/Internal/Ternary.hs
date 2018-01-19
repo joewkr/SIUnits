@@ -1,4 +1,3 @@
-{-# LANGUAGE DeriveLift #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -15,7 +14,7 @@ $(singletons [d|
     TBot :: Ternary
     TZ :: Ternary -> Ternary
     T1 :: Ternary -> Ternary
-    TJ :: Ternary -> Ternary deriving (Show, Lift)
+    TJ :: Ternary -> Ternary deriving Show
   |])
 
 ternary :: QuasiQuoter
