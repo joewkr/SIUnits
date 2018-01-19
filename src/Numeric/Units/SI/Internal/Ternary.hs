@@ -19,11 +19,14 @@ $(singletons [d|
 
 ternary :: QuasiQuoter
 ternary = QuasiQuoter {
-    quoteDec  = error "Dec"
-  , quoteExp  = error "Exp"
-  , quotePat  = error "Pat"
-  , quoteType = convertToTernary
-}
+    quoteDec  = error errorMessage
+  , quoteExp  = error errorMessage
+  , quotePat  = error errorMessage
+  , quoteType = convertToTernary }
+  where
+    errorMessage :: String
+    errorMessage = "ternary QuasiQuoter can be used only in type context"
+
 
 convertToTernary :: String -> Q Type
 convertToTernary str = do
