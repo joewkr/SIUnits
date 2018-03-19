@@ -130,12 +130,17 @@ tryCompileG pkgs logAction = compile >=> toBool
         runGhc (Just libdir) $ do
             dflags <- getSessionDynFlags
             let dflags' = dflags{
+#if __GLASGOW_HASKELL__ >= 804
+                  ghcLink = NoLink
+                , hscTarget = HscNothing
+#else
                 -- Note: These two flags are used to suppress GHC's complains
                 -- about missing symbols when HscNothing and NoLink are used
                 -- to type check code that uses TemplateHaskell. This problem
-                -- will be fixed in GHC 8.4
+                -- was fixed in GHC 8.4
                   ghcLink = LinkInMemory
                 , hscTarget = HscInterpreted
+#endif
 #if __GLASGOW_HASKELL__ >= 802
                 , packageDBFlags = map (PackageDB . PkgConfFile) pkgs
 #else
