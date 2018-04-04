@@ -123,13 +123,13 @@ instance P.Fractional b => SINum a1 a2 b 'Submultiple where
     {-# INLINE (+) #-}
     (+) (SI l) (SI r) = SI (l P.* proxyL P.+ r P.* proxyR)
       where
-        proxyL = 10 P.^^ toInt (sing :: Sing (Strip (GetMultTag (a1))))
-        proxyR = 10 P.^^ toInt (sing :: Sing (Strip (GetMultTag (a2))))
+        proxyL = 10 P.^^ toInt (sing :: Sing (Strip (GetMultTag a1)))
+        proxyR = 10 P.^^ toInt (sing :: Sing (Strip (GetMultTag a2)))
     {-# INLINE (-) #-}
     (-) (SI l) (SI r) = SI (l P.* proxyL P.- r P.* proxyR)
       where
-        proxyL = 10 P.^^ toInt (sing :: Sing (Strip (GetMultTag (a1))))
-        proxyR = 10 P.^^ toInt (sing :: Sing (Strip (GetMultTag (a2))))
+        proxyL = 10 P.^^ toInt (sing :: Sing (Strip (GetMultTag a1)))
+        proxyR = 10 P.^^ toInt (sing :: Sing (Strip (GetMultTag a2)))
 
 instance P.Num b => SINum a1 a2 b 'Multiple where
     {-# INLINE (*) #-}
@@ -139,13 +139,13 @@ instance P.Num b => SINum a1 a2 b 'Multiple where
     {-# INLINE (+) #-}
     (+) (SI l) (SI r) = SI (l P.* proxyL P.+ r P.* proxyR)
       where
-        proxyL = 10 P.^ toInt (sing :: Sing (Strip (GetMultTag (a1))))
-        proxyR = 10 P.^ toInt (sing :: Sing (Strip (GetMultTag (a2))))
+        proxyL = 10 P.^ toInt (sing :: Sing (Strip (GetMultTag a1)))
+        proxyR = 10 P.^ toInt (sing :: Sing (Strip (GetMultTag a2)))
     {-# INLINE (-) #-}
     (-) (SI l) (SI r) = SI (l P.* proxyL P.- r P.* proxyR)
       where
-        proxyL = 10 P.^ toInt (sing :: Sing (Strip (GetMultTag (a1))))
-        proxyR = 10 P.^ toInt (sing :: Sing (Strip (GetMultTag (a2))))
+        proxyL = 10 P.^ toInt (sing :: Sing (Strip (GetMultTag a1)))
+        proxyR = 10 P.^ toInt (sing :: Sing (Strip (GetMultTag a2)))
 
 instance P.Num b => SINum a1 a2 b 'None where
     {-# INLINE (*) #-}

@@ -47,7 +47,7 @@ data TagType where
 type family MultiplyExp (e :: Exp) (u :: Unit) where
     MultiplyExp e ('Tag ('Multiply t) ':*: rest) =
         TypeError ('Text "SI prefix cannot be repeated")
-    MultiplyExp e (Kg) =
+    MultiplyExp e Kg =
         TypeError ('Text "SI prefix cannot be applied to Kg unit")
     MultiplyExp e (Kg ':^: p) =
         TypeError ('Text "SI prefix cannot be applied to Kg unit")
