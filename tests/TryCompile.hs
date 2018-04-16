@@ -146,8 +146,8 @@ tryCompileG pkgs logAction = compile >=> toBool
 #else
                 , extraPkgConfs = (++) (map PkgConfFile pkgs)
 #endif
-                , includePaths = ["src/"] ++ includePaths dflags
-                , importPaths = ["src/"] ++ importPaths dflags
+                , includePaths = "src/" : includePaths dflags
+                , importPaths = "src/" : importPaths dflags
                 , log_action = logAction
                 }
             (dflags'', _) <- liftIO $! initPackages dflags'
